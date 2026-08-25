@@ -2,7 +2,9 @@ backend:
   name: github
   repo: ShabQadri/desioffers-blog
   branch: main
-  site_domain: blog.desioffers.com
+
+output:
+  omit_empty_optional_fields: true
 
 media_folder: public/images/uploads
 public_folder: /images/uploads
