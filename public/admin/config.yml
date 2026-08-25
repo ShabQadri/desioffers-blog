@@ -1,8 +1,9 @@
-# Sveltia CMS Configuration v1.0.0
 backend:
   name: github
   repo: ShabQadri/desioffers-blog
   branch: main
+  base_url: https://api.sveltia.dev
+  auth_endpoint: auth
 
 output:
   omit_empty_optional_fields: true
