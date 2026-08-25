@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { buildBreadcrumbs } from '../../../utils/taxonomy';
+
+export async function getStaticPaths() {
+  const categories = await getCollection('categories');
+  const subcategories = await getCollection('subcategories');
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  const authors = await getCollection('authors');
+
+  const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+
+  return subcategories.map((subcategory) => {
+    const parentCategory = categoryMap.get(subcategory.data.category.id);
+    const subcategoryArticles = articles
+      .filter((a) => a.data.subcategory && a.data.subcategory.id === subcategory.id)
+      .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+
+    return {
+      params: {
+        category: parentCategory?.slug || 'general',
+        subcategory: subcategory.data.slug,
+      },
+      props: {
+        subcategory: subcategory.data,
+        parentCategory: parentCategory!,
+        subcategoryArticles,
+        authorMap,
+      },
+    };
+  });
+}
+
+const { subcategory, parentCategory, subcategoryArticles, authorMap } = Astro.props;
+
+const breadcrumbs = buildBreadcrumbs({
+  categoryName: parentCategory.name,
+  categorySlug: parentCategory.slug,
+  subcategoryName: subcategory.name,
+  subcategorySlug: subcategory.slug,
+});
+---
+
+<BaseLayout
+  title={subcategory.seoTitle || `${subcategory.name} Buying Guides | DesiOffers Guides`}
+  description={subcategory.seoDescription || subcategory.description}
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container subcategory-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="subcategory-header">
+      <h1 class="subcategory-h1">{subcategory.name} Buying Guides</h1>
+      <p class="subcategory-desc">{subcategory.description}</p>
+    </header>
+
+    <div class="subcategory-articles-grid">
+      {subcategoryArticles.map((article) => {
+        const auth = authorMap.get(article.data.author.id);
+        return (
+          <ArticleCard
+            title={article.data.title}
+            slug={article.slug}
+            description={article.data.description}
+            categoryName={parentCategory.name}
+            categorySlug={parentCategory.slug}
+            heroImage={article.data.heroImage}
+            heroImageAlt={article.data.heroImageAlt}
+            publishedDate={article.data.publishedDate}
+            readingTime={article.data.readingTime}
+            authorName={auth?.name}
+          />
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .subcategory-page-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  .subcategory-header {
+    margin-bottom: 2rem;
+  }
+  .subcategory-h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .subcategory-desc {
+    font-size: 1.05rem;
+    color: var(--color-slate-600);
+    max-width: 800px;
+  }
+  .subcategory-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+</style>

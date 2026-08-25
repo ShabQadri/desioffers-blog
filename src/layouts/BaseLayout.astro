@@ -1,0 +1,75 @@
+---
+import SEO from '../components/SEO.astro';
+import StructuredData from '../components/StructuredData.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { BreadcrumbItem } from '../utils/taxonomy';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  image?: string;
+  robots?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  authorName?: string;
+  breadcrumbs?: BreadcrumbItem[];
+  articleData?: {
+    title: string;
+    description: string;
+    publishedDate: string;
+    updatedDate?: string;
+    heroImage: string;
+    authorName: string;
+    authorRole?: string;
+    url: string;
+  };
+}
+
+const {
+  title,
+  description,
+  canonicalUrl,
+  image,
+  robots,
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  authorName,
+  breadcrumbs,
+  articleData,
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <SEO
+      title={title}
+      description={description}
+      canonicalUrl={canonicalUrl}
+      image={image}
+      robots={robots}
+      type={type}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      authorName={authorName}
+    />
+    <StructuredData
+      type={type}
+      articleData={articleData}
+      breadcrumbs={breadcrumbs}
+    />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

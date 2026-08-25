@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ArticleCard from '../../../components/ArticleCard.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { buildBreadcrumbs } from '../../../utils/taxonomy';
+
+export async function getStaticPaths() {
+  const categories = await getCollection('categories');
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  const subcategories = await getCollection('subcategories');
+  const authors = await getCollection('authors');
+
+  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+
+  return categories.map((category) => {
+    const categoryArticles = articles
+      .filter((a) => a.data.category.id === category.id)
+      .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+
+    const categorySubcategories = subcategories.filter((sc) => sc.data.category.id === category.id);
+
+    return {
+      params: { category: category.data.slug },
+      props: {
+        category: category.data,
+        categoryArticles,
+        categorySubcategories: categorySubcategories.map((sc) => sc.data),
+        authorMap,
+      },
+    };
+  });
+}
+
+const { category, categoryArticles, categorySubcategories, authorMap } = Astro.props;
+
+const breadcrumbs = buildBreadcrumbs({
+  categoryName: category.name,
+  categorySlug: category.slug,
+});
+---
+
+<BaseLayout
+  title={category.seoTitle || `${category.name} Buying Guides & Reviews | DesiOffers Guides`}
+  description={category.seoDescription || category.description}
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container category-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="category-header">
+      <h1 class="category-h1">{category.name} Buying Guides</h1>
+      <p class="category-desc">{category.description}</p>
+    </header>
+
+    <!-- Subcategories Filter Pills -->
+    {categorySubcategories.length > 0 && (
+      <div class="subcategories-filter-bar">
+        <span class="sub-label">Subcategories:</span>
+        <div class="sub-pills">
+          {categorySubcategories.map((sub) => (
+            <a href={`/category/${category.slug}/${sub.slug}/`} class="sub-pill">{sub.name}</a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Category Articles Feed -->
+    {categoryArticles.length > 0 ? (
+      <div class="category-articles-grid">
+        {categoryArticles.map((article) => {
+          const auth = authorMap.get(article.data.author.id);
+          return (
+            <ArticleCard
+              title={article.data.title}
+              slug={article.slug}
+              description={article.data.description}
+              categoryName={category.name}
+              categorySlug={category.slug}
+              heroImage={article.data.heroImage}
+              heroImageAlt={article.data.heroImageAlt}
+              publishedDate={article.data.publishedDate}
+              readingTime={article.data.readingTime}
+              authorName={auth?.name}
+            />
+          );
+        })}
+      </div>
+    ) : (
+      <div class="empty-category-box">
+        <p>No guides published in this category yet. Check back soon!</p>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .category-page-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  .category-header {
+    margin-bottom: 1.5rem;
+  }
+  .category-h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .category-desc {
+    font-size: 1.05rem;
+    color: var(--color-slate-600);
+    max-width: 800px;
+  }
+
+  .subcategories-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .sub-label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--color-slate-700);
+    white-space: nowrap;
+  }
+  .sub-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .sub-pill {
+    background-color: var(--color-slate-100);
+    color: var(--color-slate-800);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .sub-pill:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .category-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .empty-category-box {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    padding: 3rem;
+    text-align: center;
+    color: var(--color-slate-500);
+  }
+</style>

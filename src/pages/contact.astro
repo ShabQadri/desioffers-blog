@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Contact Us', url: '/contact/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Contact Us | ${SITE_CONFIG.name}`}
+  description="Get in touch with the DesiOffers Guides editorial team for corrections, feedback, or general inquiries."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container static-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <article class="static-article">
+      <h1>Contact DesiOffers Guides</h1>
+      <p class="lead-text">
+        Have feedback on one of our buying guides, spotted a pricing discrepancy, or want to suggest a product for review? We’d love to hear from you.
+      </p>
+
+      <div class="contact-card">
+        <h2>Email Us</h2>
+        <p>For general inquiries, editorial corrections, or reader feedback:</p>
+        <a href={`mailto:${SITE_CONFIG.contactEmail}`} class="contact-email-link">{SITE_CONFIG.contactEmail}</a>
+      </div>
+
+      <h2>Press & Corrections</h2>
+      <p>
+        We take accuracy seriously. If you spot an out-of-date product specification, broken link, or inaccurate price listing, please email us with the guide URL and correction details.
+      </p>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .static-page-container { padding: 1rem 1.25rem 4rem; }
+  .static-article { max-width: 800px; margin: 0 auto; background: var(--color-white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200); }
+  .static-article h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+  .lead-text { font-size: 1.15rem; color: var(--color-slate-700); line-height: 1.6; margin-bottom: 2rem; }
+  .contact-card { background: var(--color-primary-light); border: 1px solid var(--color-primary-border); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; }
+  .contact-card h2 { font-size: 1.25rem; margin-top: 0; color: var(--color-primary); }
+  .contact-email-link { font-size: 1.2rem; font-weight: 700; color: var(--color-primary); text-decoration: none; }
+</style>

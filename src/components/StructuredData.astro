@@ -1,0 +1,103 @@
+---
+import { SITE_CONFIG } from '../config/site';
+import type { BreadcrumbItem } from '../utils/taxonomy';
+
+interface Props {
+  type?: 'website' | 'article';
+  articleData?: {
+    title: string;
+    description: string;
+    publishedDate: string;
+    updatedDate?: string;
+    heroImage: string;
+    authorName: string;
+    authorRole?: string;
+    url: string;
+  };
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+const { type = 'website', articleData, breadcrumbs } = Astro.props;
+
+// 1. Organization Schema
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE_CONFIG.name,
+  url: SITE_CONFIG.url,
+  logo: `${SITE_CONFIG.url}/images/brand/logo.png`,
+  description: SITE_CONFIG.description,
+  sameAs: [
+    SITE_CONFIG.social.telegram,
+    SITE_CONFIG.social.whatsapp,
+    SITE_CONFIG.social.twitter,
+  ],
+};
+
+// 2. WebSite Schema
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE_CONFIG.name,
+  url: SITE_CONFIG.url,
+  description: SITE_CONFIG.description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE_CONFIG.url}/search/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+// 3. BreadcrumbList Schema
+let breadcrumbSchema = null;
+if (breadcrumbs && breadcrumbs.length > 0) {
+  breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbs.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: item.url.startsWith('/') ? `${SITE_CONFIG.url}${item.url}` : item.url,
+    })),
+  };
+}
+
+// 4. Article / BlogPosting Schema (Non-fabricated)
+let articleSchema = null;
+if (type === 'article' && articleData) {
+  articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleData.url,
+    },
+    headline: articleData.title,
+    description: articleData.description,
+    image: articleData.heroImage.startsWith('http')
+      ? articleData.heroImage
+      : `${SITE_CONFIG.url}${articleData.heroImage}`,
+    datePublished: articleData.publishedDate,
+    dateModified: articleData.updatedDate || articleData.publishedDate,
+    author: {
+      '@type': 'Person',
+      name: articleData.authorName,
+      jobTitle: articleData.authorRole || 'Editorial Reviewer',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_CONFIG.name,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_CONFIG.url}/images/brand/logo.png`,
+      },
+    },
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+{breadcrumbSchema && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />}
+{articleSchema && <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />}

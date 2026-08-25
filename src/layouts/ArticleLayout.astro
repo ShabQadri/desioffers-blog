@@ -1,0 +1,452 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import QuickPicks from '../components/QuickPicks.astro';
+import ProductCard from '../components/ProductCard.astro';
+import ArticleTags from '../components/ArticleTags.astro';
+import { getImageUrl, getImageAttributes } from '../utils/image';
+import { formatDate } from '../utils/time';
+import { buildBreadcrumbs } from '../utils/taxonomy';
+import { SITE_CONFIG } from '../config/site';
+
+interface ProductItem {
+  position: number;
+  name: string;
+  brand: string;
+  model?: string;
+  asin?: string;
+  image: string;
+  imageAlt: string;
+  editorialBadge?: string;
+  shortDescription: string;
+  bestFor: string;
+  pros: string[];
+  cons: string[];
+  priceDisplay?: string;
+  availabilityNote?: string;
+  affiliateUrl: string;
+}
+
+interface QuickPickItem {
+  badge: string;
+  name: string;
+  asin?: string;
+  affiliateUrl: string;
+  priceDisplay?: string;
+}
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface TagItem {
+  name: string;
+  slug: string;
+}
+
+interface Props {
+  title: string;
+  slug: string;
+  description: string;
+  publishedDate: Date;
+  updatedDate?: Date;
+  lastVerified: Date;
+  readingTime: number;
+  author: {
+    name: string;
+    role: string;
+    bio: string;
+    avatar: string;
+  };
+  category: {
+    name: string;
+    slug: string;
+  };
+  subcategory?: {
+    name: string;
+    slug: string;
+  };
+  tags?: TagItem[];
+  heroImage: string;
+  heroImageAlt: string;
+  quickPicks?: QuickPickItem[];
+  products: ProductItem[];
+  faq?: FAQItem[];
+  affiliateDisclosure?: string;
+}
+
+const {
+  title,
+  slug,
+  description,
+  publishedDate,
+  updatedDate,
+  lastVerified,
+  readingTime,
+  author,
+  category,
+  subcategory,
+  tags = [],
+  heroImage,
+  heroImageAlt,
+  quickPicks = [],
+  products = [],
+  faq = [],
+  affiliateDisclosure,
+} = Astro.props;
+
+const breadcrumbs = buildBreadcrumbs({
+  categoryName: category.name,
+  categorySlug: category.slug,
+  subcategoryName: subcategory?.name,
+  subcategorySlug: subcategory?.slug,
+  articleTitle: title,
+});
+
+const heroUrl = getImageUrl(heroImage, 'hero');
+const heroAttrs = getImageAttributes('hero');
+const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={articleUrl}
+  image={heroUrl}
+  type="article"
+  publishedTime={publishedDate.toISOString()}
+  modifiedTime={updatedDate?.toISOString() || publishedDate.toISOString()}
+  authorName={author.name}
+  breadcrumbs={breadcrumbs}
+  articleData={{
+    title,
+    description,
+    publishedDate: publishedDate.toISOString(),
+    updatedDate: updatedDate?.toISOString(),
+    heroImage: heroUrl,
+    authorName: author.name,
+    authorRole: author.role,
+    url: articleUrl,
+  }}
+>
+  <div class="container article-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <!-- Article Header Area -->
+    <header class="article-header">
+      <div class="category-meta">
+        <a href={`/category/${category.slug}/`} class="category-badge">{category.name}</a>
+        {subcategory && (
+          <a href={`/category/${category.slug}/${subcategory.slug}/`} class="subcategory-badge">{subcategory.name}</a>
+        )}
+      </div>
+
+      <h1 class="article-h1">{title}</h1>
+      <p class="article-lead">{description}</p>
+
+      <!-- Transparency & Author Bar -->
+      <div class="author-transparency-bar">
+        <div class="author-profile">
+          <img src={author.avatar || '/images/brand/placeholder.webp'} alt={author.name} width="44" height="44" class="author-avatar" />
+          <div class="author-info">
+            <span class="author-byline">By <strong>{author.name}</strong> ({author.role})</span>
+            <div class="dates-row">
+              <span>Published: {formatDate(publishedDate)}</span>
+              <span class="dot">•</span>
+              <span class="verified-tag">✓ Verified: {formatDate(lastVerified)}</span>
+              <span class="dot">•</span>
+              <span>{readingTime} min read</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Affiliate Disclosure Banner -->
+      <div class="article-disclosure-banner">
+        <p>
+          ⚖️ <strong>Affiliate Transparency:</strong> {affiliateDisclosure || SITE_CONFIG.amazonDisclosure}
+          Products featured are independently evaluated based on research, specifications, and comparison criteria.
+        </p>
+      </div>
+
+      <!-- LCP Hero Image -->
+      <div class="article-hero-wrapper">
+        <img
+          src={heroUrl}
+          alt={heroImageAlt || title}
+          width={heroAttrs.width}
+          height={heroAttrs.height}
+          style={heroAttrs.style}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="article-hero-img"
+          onerror="this.onerror=null;this.src='/images/brand/placeholder.webp';"
+        />
+      </div>
+    </header>
+
+    <!-- Main Article Body -->
+    <div class="article-layout-grid">
+      <div class="article-content-main">
+        <!-- Quick Picks Summary -->
+        {quickPicks && quickPicks.length > 0 && <QuickPicks picks={quickPicks} />}
+
+        <!-- Markdown Content Slot -->
+        <div class="editorial-body">
+          <slot />
+        </div>
+
+        <!-- Product Cards Showcase -->
+        <section class="products-showcase-section" id="recommended-products">
+          <h2 class="section-title">Detailed Product Recommendations</h2>
+          {products.map((product) => (
+            <ProductCard {...product} />
+          ))}
+        </section>
+
+        <!-- Evaluation Methodology Section -->
+        <section class="methodology-section">
+          <h3 class="methodology-title">How We Selected These Products</h3>
+          <p>
+            Our recommendation methodology is built on independent technical evaluation, specification comparisons, brand warranty support in India, and feedback from real Indian consumers.
+          </p>
+          <ul class="methodology-list">
+            <li><strong>Value for Money:</strong> Prices in INR (₹) are evaluated against overall performance and build quality.</li>
+            <li><strong>Indian Usage Suitability:</strong> Verified for Indian electrical standards, local customer service responsiveness, and tropical climate durability.</li>
+            <li><strong>Transparent Standards:</strong> No product is marked as physically hands-on tested unless explicitly conducted in our studio.</li>
+          </ul>
+        </section>
+
+        <!-- FAQ Accordion Section -->
+        {faq && faq.length > 0 && (
+          <section class="faq-section">
+            <h3 class="faq-title">Frequently Asked Questions</h3>
+            <div class="faq-list">
+              {faq.map((item) => (
+                <details class="faq-item">
+                  <summary class="faq-question">{item.question}</summary>
+                  <div class="faq-answer">
+                    <p>{item.answer}</p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <!-- Author Profile Box -->
+        <div class="author-bio-box">
+          <img src={author.avatar || '/images/brand/placeholder.webp'} alt={author.name} width="64" height="64" class="bio-avatar" />
+          <div class="bio-text">
+            <h4 class="bio-name">About {author.name}</h4>
+            <p className="bio-desc">{author.bio}</p>
+          </div>
+        </div>
+
+        <!-- Article Controlled Tags Footer -->
+        <ArticleTags tags={tags} />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .article-container {
+    padding-top: 1rem;
+  }
+  .article-header {
+    margin-bottom: 2rem;
+  }
+  .category-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .category-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .subcategory-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-slate-700);
+    background-color: var(--color-slate-100);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+  }
+
+  .article-h1 {
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    margin-bottom: 0.85rem;
+  }
+  .article-lead {
+    font-size: 1.15rem;
+    color: var(--color-slate-600);
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .author-transparency-bar {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .author-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .author-avatar {
+    border-radius: var(--radius-full);
+    object-fit: cover;
+  }
+  .author-info {
+    font-size: 0.85rem;
+  }
+  .author-byline {
+    color: var(--color-slate-800);
+    display: block;
+    margin-bottom: 0.15rem;
+  }
+  .dates-row {
+    color: var(--color-slate-500);
+    font-size: 0.785rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .verified-tag {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+
+  .article-disclosure-banner {
+    background-color: var(--color-slate-100);
+    border-left: 3px solid var(--color-slate-400);
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    color: var(--color-slate-600);
+    margin-bottom: 1.5rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .article-disclosure-banner p { margin: 0; }
+
+  .article-hero-wrapper {
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-slate-200);
+    box-shadow: var(--shadow-sm);
+  }
+  .article-hero-img {
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .editorial-body {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--color-slate-800);
+    margin-bottom: 2.5rem;
+  }
+  .editorial-body h2 {
+    font-size: 1.6rem;
+    margin-top: 2.25rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .methodology-section {
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin: 3rem 0;
+  }
+  .methodology-title {
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+  .methodology-list {
+    margin-left: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--color-slate-700);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .faq-section {
+    margin: 3rem 0;
+  }
+  .faq-title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .faq-item {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.25rem;
+  }
+  .faq-question {
+    font-weight: 700;
+    color: var(--color-slate-900);
+    cursor: pointer;
+  }
+  .faq-answer {
+    padding-top: 0.75rem;
+    font-size: 0.925rem;
+    color: var(--color-slate-700);
+  }
+
+  .author-bio-box {
+    display: flex;
+    gap: 1.25rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin: 2.5rem 0;
+  }
+  .bio-avatar {
+    border-radius: var(--radius-full);
+    object-fit: cover;
+  }
+  .bio-name {
+    font-size: 1.05rem;
+    margin-top: 0;
+    margin-bottom: 0.35rem;
+  }
+  .bio-desc {
+    font-size: 0.875rem;
+    color: var(--color-slate-600);
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 768px) {
+    .author-transparency-bar { padding: 0.75rem; }
+    .dates-row { font-size: 0.75rem; }
+  }
+</style>

@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Evaluation Methodology', url: '/methodology/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Our Evaluation Methodology | ${SITE_CONFIG.name}`}
+  description="Learn how DesiOffers Guides researches, evaluates, and selects products for Indian consumers."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container static-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <article class="static-article">
+      <h1>Our Evaluation & Selection Methodology</h1>
+      <p class="lead-text">
+        At DesiOffers Guides, we believe a great buying guide should save you time and money by cutting through manufacturer marketing jargon. Here is how we research and select every product featured on our platform.
+      </p>
+
+      <h2>1. Specification & Build Quality Research</h2>
+      <p>
+        We analyze technical datasheets, component specifications (such as switch types in keyboards, sensor models in gaming mice, or driver sizes in TWS earbuds), and thermal performance under real-world usage conditions.
+      </p>
+
+      <h2>2. Suitability for Indian Consumers</h2>
+      <p>
+        Products sold in India must suit local conditions. We evaluate voltage and power surge tolerance, official manufacturer warranty support in major Indian cities, and performance in humid climates.
+      </p>
+
+      <h2>3. Value for Money (INR Pricing)</h2>
+      <p>
+        A product priced at ₹2,500 must deliver tangible advantages over a ₹1,500 alternative. We compare features against price points to identify genuine "Best Budget" and "Best Value" picks.
+      </p>
+
+      <h2>4. Real Customer Sentiment & Long-Term Reliability</h2>
+      <p>
+        We cross-reference customer feedback across Amazon India to spot recurring build defects, cable wear issues, or battery degradation over 6-12 months of use.
+      </p>
+
+      <h2>5. Verification & Transparency Rules</h2>
+      <p>
+        We strictly distinguish between hands-on studio testing and specification-based comparative analysis. Every buying guide features an explicit <em>Last Verified</em> date stamp.
+      </p>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .static-page-container { padding: 1rem 1.25rem 4rem; }
+  .static-article { max-width: 800px; margin: 0 auto; background: var(--color-white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200); }
+  .static-article h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+  .lead-text { font-size: 1.15rem; color: var(--color-slate-700); line-height: 1.6; margin-bottom: 2rem; }
+  .static-article h2 { font-size: 1.3rem; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--color-primary); }
+  .static-article p { margin-bottom: 1.25rem; color: var(--color-slate-700); line-height: 1.6; }
+</style>

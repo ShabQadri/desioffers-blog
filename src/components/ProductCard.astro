@@ -1,0 +1,311 @@
+---
+import { getImageUrl, getImageAttributes } from '../utils/image';
+import { buildAmazonAffiliateUrl, AFFILIATE_LINK_ATTRIBUTES } from '../utils/affiliate';
+
+interface Props {
+  position: number;
+  name: string;
+  brand: string;
+  model?: string;
+  asin?: string;
+  image: string;
+  imageAlt: string;
+  editorialBadge?: string;
+  shortDescription: string;
+  bestFor: string;
+  pros: string[];
+  cons: string[];
+  priceDisplay?: string;
+  availabilityNote?: string;
+  affiliateUrl: string;
+}
+
+const {
+  position,
+  name,
+  brand,
+  model,
+  asin,
+  image,
+  imageAlt,
+  editorialBadge,
+  shortDescription,
+  bestFor,
+  pros,
+  cons,
+  priceDisplay,
+  availabilityNote,
+  affiliateUrl,
+} = Astro.props;
+
+const finalAffiliateUrl = buildAmazonAffiliateUrl(affiliateUrl || asin || '');
+const imageUrl = getImageUrl(image, 'medium');
+const imgAttrs = getImageAttributes('medium');
+---
+
+<div class="product-card" id={`product-${position}`}>
+  <!-- Card Header Bar -->
+  <div class="card-header">
+    <div class="position-badge">#{position}</div>
+    {editorialBadge && (
+      <div class="editorial-badge">{editorialBadge}</div>
+    )}
+    <div class="best-for-pill">
+      <span>Best for:</span> {bestFor}
+    </div>
+  </div>
+
+  <!-- Title & Brand -->
+  <h3 class="product-title">{name}</h3>
+  <p class="product-subtitle">{brand} {model && `• ${model}`}</p>
+
+  <!-- Content Grid: Image + Overview -->
+  <div class="card-main-grid">
+    <div class="product-image-col">
+      <img
+        src={imageUrl}
+        alt={imageAlt || name}
+        width={imgAttrs.width}
+        height={imgAttrs.height}
+        style={imgAttrs.style}
+        loading="lazy"
+        decoding="async"
+        class="product-img"
+        onerror="this.onerror=null;this.src='/images/brand/placeholder.webp';"
+      />
+    </div>
+
+    <div class="product-details-col">
+      <div class="verdict-box">
+        <h4 class="verdict-heading">Editorial Verdict</h4>
+        <p class="verdict-text">{shortDescription}</p>
+      </div>
+
+      <!-- Pros & Cons Grid -->
+      <div class="pros-cons-grid">
+        <div class="pros-box">
+          <h5 class="pc-heading pros-heading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Pros
+          </h5>
+          <ul class="pc-list">
+            {pros.map((pro) => (
+              <li>{pro}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="cons-box">
+          <h5 class="pc-heading cons-heading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            Cons
+          </h5>
+          <ul class="pc-list">
+            {cons.map((con) => (
+              <li>{con}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Action Footer -->
+  <div class="card-footer-action">
+    <div class="price-info">
+      {priceDisplay && <span class="price-value">{priceDisplay}</span>}
+      <span class="availability-tag">{availabilityNote || 'Verified on Amazon India'}</span>
+    </div>
+
+    <a
+      href={finalAffiliateUrl}
+      rel={AFFILIATE_LINK_ATTRIBUTES.rel}
+      target={AFFILIATE_LINK_ATTRIBUTES.target}
+      class="btn btn-amazon cta-btn"
+    >
+      <span>Check Price on Amazon</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </a>
+  </div>
+</div>
+
+<style>
+  .product-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .product-card:hover {
+    border-color: var(--color-slate-300);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+  .position-badge {
+    background-color: var(--color-slate-900);
+    color: var(--color-white);
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-sm);
+  }
+  .editorial-badge {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary-border);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+  }
+  .best-for-pill {
+    font-size: 0.8rem;
+    color: var(--color-slate-600);
+    background-color: var(--color-slate-100);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    margin-left: auto;
+  }
+  .best-for-pill span {
+    font-weight: 700;
+    color: var(--color-slate-800);
+  }
+
+  .product-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+  }
+  .product-subtitle {
+    font-size: 0.85rem;
+    color: var(--color-slate-500);
+    margin-bottom: 1.25rem;
+  }
+
+  .card-main-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .product-image-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-slate-50);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+  }
+  .product-img {
+    object-fit: contain;
+    max-height: 220px;
+    width: 100%;
+    border-radius: var(--radius-sm);
+  }
+
+  .verdict-box {
+    background-color: var(--color-primary-light);
+    border-left: 3px solid var(--color-primary);
+    padding: 0.85rem 1rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom: 1rem;
+  }
+  .verdict-heading {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+  .verdict-text {
+    font-size: 0.9rem;
+    color: var(--color-slate-800);
+    margin-bottom: 0;
+  }
+
+  .pros-cons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .pros-box, .cons-box {
+    background-color: var(--color-slate-50);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+  }
+  .pc-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+  }
+  .pros-heading { color: var(--color-success); }
+  .cons-heading { color: var(--color-danger); }
+  .pc-list {
+    list-style: none;
+    font-size: 0.825rem;
+    color: var(--color-slate-700);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .pc-list li {
+    position: relative;
+    padding-left: 1rem;
+    line-height: 1.4;
+  }
+  .pc-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0.2rem;
+    color: var(--color-slate-400);
+  }
+
+  .card-footer-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-slate-200);
+  }
+  .price-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .price-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+  }
+  .availability-tag {
+    font-size: 0.75rem;
+    color: var(--color-slate-500);
+  }
+  .cta-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 768px) {
+    .card-main-grid { grid-template-columns: 1fr; }
+    .pros-cons-grid { grid-template-columns: 1fr; }
+    .card-footer-action { flex-direction: column; gap: 1rem; align-items: stretch; text-align: center; }
+    .best-for-pill { margin-left: 0; width: 100%; text-align: center; }
+  }
+</style>

@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Privacy Policy', url: '/privacy/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Privacy Policy | ${SITE_CONFIG.name}`}
+  description="Privacy policy and data protection practices for DesiOffers Guides visitors."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container static-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <article class="static-article">
+      <h1>Privacy Policy</h1>
+      <p class="lead-text">Last updated: August 25, 2026</p>
+
+      <h2>1. Privacy Commitment</h2>
+      <p>
+        DesiOffers Guides ("we", "our", "us") respects your privacy. We do not require visitors to register an account or provide personal information to browse our publication.
+      </p>
+
+      <h2>2. Cookies & Analytics</h2>
+      <p>
+        We use privacy-conscious, non-intrusive website analytics to aggregate general traffic statistics (such as page views and popular categories). We do not build personal user profiles or sell user data to third parties.
+      </p>
+
+      <h2>3. Outbound Affiliate Links</h2>
+      <p>
+        Our website contains affiliate links to Amazon.in. When you click an affiliate link, Amazon may set third-party cookies on your browser to track qualifying purchases in accordance with Amazon's Privacy Policy.
+      </p>
+
+      <h2>4. Changes to This Policy</h2>
+      <p>
+        We reserve the right to update this privacy policy at any time. Any changes will be published on this page with an updated date stamp.
+      </p>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .static-page-container { padding: 1rem 1.25rem 4rem; }
+  .static-article { max-width: 800px; margin: 0 auto; background: var(--color-white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200); }
+  .static-article h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .lead-text { font-size: 0.9rem; color: var(--color-slate-500); margin-bottom: 2rem; }
+  .static-article h2 { font-size: 1.3rem; margin-top: 1.75rem; margin-bottom: 0.5rem; }
+  .static-article p { margin-bottom: 1.25rem; color: var(--color-slate-700); line-height: 1.6; }
+</style>

@@ -1,0 +1,25 @@
+# Granular Crawler Policy for DesiOffers Guides (blog.desioffers.com)
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /search/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /search/
+
+# AI Search & Retrieval Crawlers (Allowed for search discovery)
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin/
+
+# AI Model Training Crawlers (Controlled separately)
+User-agent: GPTBot
+Disallow: /admin/
+
+User-agent: ClaudeBot
+Disallow: /admin/
+
+Sitemap: https://blog.desioffers.com/sitemap-index.xml

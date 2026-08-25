@@ -1,0 +1,144 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const topicHubs: CollectionEntry<'topicHubs'>[] = await getCollection('topicHubs');
+  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }) => !data.draft);
+  const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
+  const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
+
+  const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+
+  return topicHubs.map((hub) => {
+    const hubArticles = articles
+      .filter((a) => a.data.category.id === hub.data.featuredCategory.id)
+      .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+
+    return {
+      params: { slug: hub.data.slug },
+      props: {
+        hub: hub.data,
+        hubArticles,
+        categoryMap,
+        authorMap,
+      },
+    };
+  });
+}
+
+interface Props {
+  hub: CollectionEntry<'topicHubs'>['data'];
+  hubArticles: CollectionEntry<'articles'>[];
+  categoryMap: Map<string, CollectionEntry<'categories'>['data']>;
+  authorMap: Map<string, CollectionEntry<'authors'>['data']>;
+}
+
+const { hub, hubArticles, categoryMap, authorMap } = Astro.props;
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Topic Hubs', url: '#' },
+  { label: hub.title, url: `/topics/${hub.slug}/`, isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={hub.seoTitle || `${hub.title} | DesiOffers Guides`}
+  description={hub.seoDescription || hub.description}
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container topic-hub-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="topic-hub-header">
+      <span class="hub-label">EDITORIAL TOPIC HUB</span>
+      <h1 class="hub-h1">{hub.title}</h1>
+      <p class="hub-desc">{hub.description}</p>
+    </header>
+
+    <div class="topic-articles-grid">
+      {hubArticles.map((article) => {
+        const cat = categoryMap.get(article.data.category.id);
+        const auth = authorMap.get(article.data.author.id);
+        return (
+          <ArticleCard
+            title={article.data.title}
+            slug={article.slug}
+            description={article.data.description}
+            categoryName={cat?.name || 'General'}
+            categorySlug={cat?.slug || 'gaming'}
+            heroImage={article.data.heroImage}
+            heroImageAlt={article.data.heroImageAlt}
+            publishedDate={article.data.publishedDate}
+            readingTime={article.data.readingTime}
+            authorName={auth?.name}
+          />
+        );
+      })}
+    </div>
+
+    {hub.faq && hub.faq.length > 0 && (
+      <section class="hub-faq-section">
+        <h2 class="faq-heading">Frequently Asked Questions on {hub.title}</h2>
+        <div class="faq-grid">
+          {hub.faq.map((item) => (
+            <div class="faq-card">
+              <h3 class="faq-q">{item.question}</h3>
+              <p class="faq-a">{item.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .topic-hub-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  .topic-hub-header {
+    margin-bottom: 2rem;
+  }
+  .hub-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+  .hub-h1 {
+    font-size: 2.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .hub-desc {
+    font-size: 1.1rem;
+    color: var(--color-slate-600);
+    max-width: 800px;
+  }
+  .topic-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .hub-faq-section {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+  }
+  .faq-heading { font-size: 1.4rem; margin-bottom: 1.5rem; }
+  .faq-grid { display: grid; gap: 1rem; }
+  .faq-card { background-color: var(--color-slate-50); padding: 1.25rem; border-radius: var(--radius-md); }
+  .faq-q { font-size: 1rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--color-slate-900); }
+  .faq-a { font-size: 0.9rem; color: var(--color-slate-700); margin-bottom: 0; }
+</style>

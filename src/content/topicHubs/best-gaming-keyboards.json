@@ -1,0 +1,17 @@
+{
+  "title": "Best Gaming Keyboards Hub",
+  "slug": "best-gaming-keyboards",
+  "description": "Comprehensive buying advice, switch comparisons, and curated guides for mechanical gaming keyboards in India.",
+  "heroImage": "/images/articles/gaming-keyboards-hero.webp",
+  "featuredCategory": "gaming",
+  "relatedSubcategories": ["gaming-keyboards", "gaming-mice"],
+  "relatedTags": ["mechanical", "rgb", "budget", "under-5000"],
+  "seoTitle": "Best Gaming Keyboards in India | Complete Buyer's Hub",
+  "seoDescription": "Explore our curated guides, switch comparisons, and top mechanical gaming keyboard picks for Indian gamers.",
+  "faq": [
+    {
+      "question": "What is the best mechanical keyboard under ₹5,000?",
+      "answer": "The Redragon K552 Kumara and Cosmic Byte Firefly are top choices under ₹5,000 offering dust-proof mechanical switches and RGB lighting."
+    }
+  ]
+}

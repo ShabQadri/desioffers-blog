@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+
+const articles = await getCollection('articles', ({ data }) => !data.draft);
+const categories = await getCollection('categories');
+const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+
+const searchIndex = articles.map((article) => {
+  const cat = categoryMap.get(article.data.category.id);
+  return {
+    title: article.data.title,
+    slug: article.slug,
+    description: article.data.description,
+    categoryName: cat?.name || 'General',
+    categorySlug: cat?.slug || 'gaming',
+    heroImage: article.data.heroImage,
+  };
+});
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Search', url: '/search/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title="Search Buying Guides & Products | DesiOffers Guides"
+  description="Search DesiOffers Guides for gaming keyboards, earbuds, kitchen appliances, and beauty recommendations."
+  robots="noindex, follow"
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container search-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="search-header">
+      <h1 class="search-h1">Search DesiOffers Guides</h1>
+      <div class="search-input-wrapper">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search by product, category, keyboard, earbuds, or topic..."
+          class="search-input-field"
+          autofocus
+        />
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+    </header>
+
+    <div id="search-results-info" class="search-results-info">
+      Type a query above to explore our buying guides.
+    </div>
+
+    <div id="search-results-grid" class="search-results-grid"></div>
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ searchIndex }}>
+  const input = document.getElementById('search-input');
+  const resultsGrid = document.getElementById('search-results-grid');
+  const infoText = document.getElementById('search-results-info');
+
+  function renderResults(query) {
+    if (!query || query.trim() === '') {
+      infoText.textContent = 'Type a query above to explore our buying guides.';
+      resultsGrid.innerHTML = '';
+      return;
+    }
+
+    const q = query.toLowerCase().trim();
+    const filtered = searchIndex.filter(item => 
+      item.title.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      item.categoryName.toLowerCase().includes(q)
+    );
+
+    if (filtered.length === 0) {
+      infoText.textContent = `No guides found matching "${query}". Try searching for "keyboard", "earbuds", "kitchen", or "beauty".`;
+      resultsGrid.innerHTML = '';
+      return;
+    }
+
+    infoText.textContent = `Found ${filtered.length} guide${filtered.length > 1 ? 's' : ''} matching "${query}":`;
+    resultsGrid.innerHTML = filtered.map(item => `
+      <article class="search-result-card">
+        <div class="res-body">
+          <span class="res-cat">${item.categoryName}</span>
+          <h3 class="res-title"><a href="/${item.slug}/">${item.title}</a></h3>
+          <p class="res-desc">${item.description}</p>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  // Check URL search param 'q'
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialQuery = urlParams.get('q');
+  if (initialQuery) {
+    input.value = initialQuery;
+    renderResults(initialQuery);
+  }
+
+  input.addEventListener('input', (e) => {
+    renderResults(e.target.value);
+  });
+</script>
+
+<style>
+  .search-page-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  .search-header {
+    margin-bottom: 2rem;
+  }
+  .search-h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+  .search-input-wrapper {
+    position: relative;
+    max-width: 700px;
+  }
+  .search-input-field {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: 1.1rem;
+    border: 2px solid var(--color-slate-300);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .search-input-field:focus {
+    border-color: var(--color-primary);
+  }
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-slate-400);
+  }
+  .search-results-info {
+    font-size: 0.95rem;
+    color: var(--color-slate-600);
+    margin-bottom: 1.5rem;
+  }
+  .search-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+</style>

@@ -1,0 +1,73 @@
+---
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  const categories = await getCollection('categories');
+  const subcategories = await getCollection('subcategories');
+  const authors = await getCollection('authors');
+  const tags = await getCollection('tags');
+
+  const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+  const subcategoryMap = new Map(subcategories.map((sc) => [sc.id, sc.data]));
+  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+  const tagMap = new Map(tags.map((t) => [t.id, t.data]));
+
+  return articles.map((article) => {
+    const categoryData = categoryMap.get(article.data.category.id);
+    const subcategoryData = article.data.subcategory ? subcategoryMap.get(article.data.subcategory.id) : undefined;
+    const authorData = authorMap.get(article.data.author.id);
+    const articleTags = (article.data.tags || [])
+      .map((tRef) => tagMap.get(tRef.id))
+      .filter(Boolean) as { name: string; slug: string }[];
+
+    return {
+      params: { slug: article.slug },
+      props: {
+        article,
+        categoryData,
+        subcategoryData,
+        authorData,
+        articleTags,
+      },
+    };
+  });
+}
+
+const { article, categoryData, subcategoryData, authorData, articleTags } = Astro.props;
+const { Content } = await article.render();
+---
+
+<ArticleLayout
+  title={article.data.title}
+  slug={article.slug}
+  description={article.data.description}
+  publishedDate={article.data.publishedDate}
+  updatedDate={article.data.updatedDate}
+  lastVerified={article.data.lastVerified}
+  readingTime={article.data.readingTime}
+  author={{
+    name: authorData?.name || 'Editorial Reviewer',
+    role: authorData?.role || 'Staff Writer',
+    bio: authorData?.bio || 'DesiOffers Guides Editorial Team',
+    avatar: authorData?.avatar || '/images/brand/placeholder.webp',
+  }}
+  category={{
+    name: categoryData?.name || 'General',
+    slug: categoryData?.slug || 'gaming',
+  }}
+  subcategory={subcategoryData ? {
+    name: subcategoryData.name,
+    slug: subcategoryData.slug,
+  } : undefined}
+  tags={articleTags}
+  heroImage={article.data.heroImage}
+  heroImageAlt={article.data.heroImageAlt}
+  quickPicks={article.data.quickPicks}
+  products={article.data.products}
+  faq={article.data.faq}
+  affiliateDisclosure={article.data.affiliateDisclosure}
+>
+  <Content />
+</ArticleLayout>

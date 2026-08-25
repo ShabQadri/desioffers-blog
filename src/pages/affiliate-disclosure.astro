@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Affiliate Disclosure', url: '/affiliate-disclosure/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Amazon Affiliate Disclosure | ${SITE_CONFIG.name}`}
+  description="Full Amazon Associates affiliate disclosure statement and commercial transparency policy for DesiOffers Guides."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container static-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <article class="static-article">
+      <h1>Affiliate Disclosure Policy</h1>
+      <p class="lead-text">Transparency is our highest priority.</p>
+
+      <div class="disclosure-highlight">
+        <p><strong>Mandatory Amazon Associates Statement:</strong></p>
+        <blockquote class="statement-quote">
+          "{SITE_CONFIG.amazonDisclosure}"
+        </blockquote>
+      </div>
+
+      <h2>How Our Affiliate Links Work</h2>
+      <p>
+        When you click on an Amazon product link on DesiOffers Guides and complete a purchase, Amazon pays us a small referral commission. This commission comes at <strong>zero additional cost to you</strong> (the price you pay on Amazon India remains identical whether you click our link or navigate directly to Amazon).
+      </p>
+
+      <h2>Editorial Independence Guarantee</h2>
+      <ul>
+        <li>We never accept paid reviews or guaranteed placement from manufacturers.</li>
+        <li>Affiliate relationships never influence our editorial scoring, pros/cons lists, or product verdicts.</li>
+        <li>We feature products based on merit, technical specifications, and Indian consumer value.</li>
+        <li>All outbound commercial affiliate links use standard <code>rel="sponsored nofollow"</code> attributes.</li>
+      </ul>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .static-page-container { padding: 1rem 1.25rem 4rem; }
+  .static-article { max-width: 800px; margin: 0 auto; background: var(--color-white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200); }
+  .static-article h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .lead-text { font-size: 1.1rem; color: var(--color-slate-600); margin-bottom: 2rem; }
+  .disclosure-highlight { background: var(--color-primary-light); border: 1px solid var(--color-primary-border); padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 2rem; }
+  .statement-quote { font-style: italic; font-weight: 700; color: var(--color-primary); font-size: 1.05rem; margin-top: 0.5rem; margin-bottom: 0; }
+  .static-article h2 { font-size: 1.3rem; margin-top: 1.75rem; margin-bottom: 0.5rem; }
+  .static-article p { margin-bottom: 1.25rem; color: var(--color-slate-700); line-height: 1.6; }
+  .static-article ul { margin-left: 1.25rem; margin-bottom: 1.5rem; }
+  .static-article li { margin-bottom: 0.5rem; color: var(--color-slate-700); }
+</style>

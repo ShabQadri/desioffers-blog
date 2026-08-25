@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Terms of Service', url: '/terms/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Terms of Service | ${SITE_CONFIG.name}`}
+  description="Terms and conditions governing the use of DesiOffers Guides buying guides."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container static-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <article class="static-article">
+      <h1>Terms of Service</h1>
+      <p class="lead-text">Last updated: August 25, 2026</p>
+
+      <h2>1. Use of Website</h2>
+      <p>
+        By accessing DesiOffers Guides, you agree to use the content for personal, non-commercial informational purposes.
+      </p>
+
+      <h2>2. Disclaimer of Product Information & Prices</h2>
+      <p>
+        While we strive for accuracy, product specifications, prices, and availability on Amazon India change frequently. We make no warranty that pricing or stock information remains accurate after publication. Always verify final pricing on Amazon.in before purchasing.
+      </p>
+
+      <h2>3. Intellectual Property</h2>
+      <p>
+        All original text, layout designs, editorial reviews, and article content are the intellectual property of DesiOffers Guides. Third-party brand names, logos, and trademarks remain the property of their respective owners.
+      </p>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .static-page-container { padding: 1rem 1.25rem 4rem; }
+  .static-article { max-width: 800px; margin: 0 auto; background: var(--color-white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200); }
+  .static-article h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .lead-text { font-size: 0.9rem; color: var(--color-slate-500); margin-bottom: 2rem; }
+  .static-article h2 { font-size: 1.3rem; margin-top: 1.75rem; margin-bottom: 0.5rem; }
+  .static-article p { margin-bottom: 1.25rem; color: var(--color-slate-700); line-height: 1.6; }
+</style>

@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: '404 Page Not Found', url: '#', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Page Not Found | ${SITE_CONFIG.name}`}
+  description="The page you were looking for could not be found."
+  robots="noindex, follow"
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container error-page-container">
+    <div class="error-box">
+      <span class="error-code">404</span>
+      <h1 class="error-h1">Page Not Found</h1>
+      <p class="error-desc">
+        Sorry, the buying guide or page you are looking for has moved or no longer exists.
+      </p>
+
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">Return to Homepage</a>
+        <a href="/search/" class="btn btn-secondary">Search Guides</a>
+      </div>
+
+      <div class="popular-links-box">
+        <h3>Explore Top Categories:</h3>
+        <div class="pills-group">
+          <a href="/category/gaming/">Gaming Peripherals</a>
+          <a href="/category/beauty-makeup/">Beauty & Makeup</a>
+          <a href="/category/kitchen-appliances/">Kitchen Appliances</a>
+          <a href="/category/electronics-audio/">Electronics & Audio</a>
+          <a href="/category/home-living/">Home & Living</a>
+          <a href="/deals/">Curated Deals</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .error-page-container {
+    padding: 4rem 1.25rem;
+    display: flex;
+    justify-content: center;
+  }
+  .error-box {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    max-width: 650px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .error-code {
+    font-family: var(--font-heading);
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+  .error-h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .error-desc {
+    color: var(--color-slate-600);
+    font-size: 1.05rem;
+    margin-bottom: 2rem;
+  }
+  .error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .popular-links-box {
+    text-align: left;
+    border-top: 1px solid var(--color-slate-200);
+    padding-top: 1.5rem;
+  }
+  .popular-links-box h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.85rem;
+    color: var(--color-slate-700);
+  }
+  .pills-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .pills-group a {
+    background-color: var(--color-slate-100);
+    color: var(--color-slate-800);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+  }
+  .pills-group a:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+</style>

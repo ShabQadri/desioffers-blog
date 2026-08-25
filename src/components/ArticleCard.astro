@@ -1,0 +1,169 @@
+---
+import { getImageUrl, getImageAttributes } from '../utils/image';
+import { formatDate } from '../utils/time';
+
+interface Props {
+  title: string;
+  slug: string;
+  description: string;
+  categoryName: string;
+  categorySlug: string;
+  heroImage: string;
+  heroImageAlt: string;
+  publishedDate: Date;
+  readingTime: number;
+  authorName?: string;
+  featured?: boolean;
+}
+
+const {
+  title,
+  slug,
+  description,
+  categoryName,
+  categorySlug,
+  heroImage,
+  heroImageAlt,
+  publishedDate,
+  readingTime,
+  authorName = 'Editorial Team',
+  featured = false,
+} = Astro.props;
+
+const imageUrl = getImageUrl(heroImage, featured ? 'medium' : 'card');
+const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
+---
+
+<article class={`article-card ${featured ? 'featured' : ''}`}>
+  <a href={`/${slug}/`} class="card-image-link" tab-index="-1">
+    <img
+      src={imageUrl}
+      alt={heroImageAlt || title}
+      width={imgAttrs.width}
+      height={imgAttrs.height}
+      style={imgAttrs.style}
+      loading="lazy"
+      decoding="async"
+      class="card-img"
+      onerror="this.onerror=null;this.src='/images/brand/placeholder.webp';"
+    />
+  </a>
+
+  <div class="card-body">
+    <div class="card-meta-top">
+      <a href={`/category/${categorySlug}/`} class="category-pill">{categoryName}</a>
+      <span class="reading-time">{readingTime} min read</span>
+    </div>
+
+    <h3 class="card-title">
+      <a href={`/${slug}/`}>{title}</a>
+    </h3>
+
+    <p class="card-excerpt">{description}</p>
+
+    <div class="card-footer">
+      <span class="author-name">By {authorName}</span>
+      <span class="publish-date">{formatDate(publishedDate)}</span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .article-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .article-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-slate-300);
+  }
+
+  .card-image-link {
+    display: block;
+    overflow: hidden;
+    background-color: var(--color-slate-100);
+  }
+  .card-img {
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  .article-card:hover .card-img {
+    transform: scale(1.03);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-meta-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .category-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .reading-time {
+    font-size: 0.75rem;
+    color: var(--color-slate-500);
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    line-height: 1.35;
+    margin-bottom: 0.6rem;
+  }
+  .card-title a {
+    color: var(--color-slate-900);
+    text-decoration: none;
+  }
+  .card-title a:hover {
+    color: var(--color-primary);
+  }
+
+  .card-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-slate-600);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    flex: 1;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.775rem;
+    color: var(--color-slate-500);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-slate-100);
+  }
+  .author-name { font-weight: 600; }
+
+  .article-card.featured {
+    grid-column: span 2;
+  }
+  @media (max-width: 768px) {
+    .article-card.featured { grid-column: span 1; }
+  }
+</style>

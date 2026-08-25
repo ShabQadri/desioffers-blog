@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_CONFIG } from '../config/site';
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'About DesiOffers Guides', url: '/about/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`About Us | ${SITE_CONFIG.name}`}
+  description="Learn about DesiOffers Guides, our editorial independence, evaluation methodology, and how we curate product buying guides for Indian consumers."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container static-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <article class="static-article">
+      <h1>About DesiOffers Guides</h1>
+      <p class="lead-text">
+        DesiOffers Guides is an independent product discovery and buying-guide publication. Our mission is simple: help Indian consumers make confident, informed buying decisions without getting lost in marketing hype.
+      </p>
+
+      <h2>Our Editorial Independence</h2>
+      <p>
+        We do not accept paid product placements, biased brand sponsorships, or fake review swaps. Every recommendation is researched by our editorial staff using technical specifications, manufacturer documentation, price history, and real customer feedback from Indian buyers.
+      </p>
+
+      <h2>Relationship to DesiOffers Main Platform</h2>
+      <p>
+        DesiOffers Guides is the editorial publication companion to the main <a href={SITE_CONFIG.mainSiteUrl} target="_blank" rel="noopener">DesiOffers deal discovery platform</a>. While the main site aggregates daily deals and shopping discounts across India, our buying guide publication focuses on in-depth product comparisons, buying advice, and category recommendations.
+      </p>
+
+      <h2>How We Earn Money</h2>
+      <p>
+        DesiOffers Guides participates in the Amazon Services LLC Associates Program. When you click an outbound link on our site and make a purchase on Amazon.in, we may earn a small affiliate commission at no extra cost to you. This keeps our publication completely free and ad-light.
+      </p>
+
+      <h2>Editorial Standards & Verification</h2>
+      <ul>
+        <li><strong>Factual Verification:</strong> We indicate the last verified date on all product buying guides.</li>
+        <li><strong>No Fake Reviews:</strong> We never invent physical testing claims. When a product has not been physically hands-on tested in our studio, we transparently state that our analysis is based on technical specifications and market research.</li>
+        <li><strong>Transparent Amazon Pricing:</strong> Prices on Amazon.in change dynamically; we list verified price points with explicit timestamps.</li>
+      </ul>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .static-page-container { padding: 1rem 1.25rem 4rem; }
+  .static-article { max-width: 800px; margin: 0 auto; background: var(--color-white); padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-slate-200); }
+  .static-article h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+  .lead-text { font-size: 1.15rem; color: var(--color-slate-700); line-height: 1.6; margin-bottom: 2rem; }
+  .static-article h2 { font-size: 1.4rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+  .static-article p { margin-bottom: 1.25rem; color: var(--color-slate-700); line-height: 1.6; }
+  .static-article ul { margin-left: 1.25rem; margin-bottom: 1.5rem; }
+  .static-article li { margin-bottom: 0.5rem; color: var(--color-slate-700); }
+</style>

@@ -1,0 +1,11 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.amazon.in https://*.media-amazon.com https://*.cloudfront.net; frame-ancestors 'none'; object-src 'none';
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+  Content-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval' https:; frame-ancestors 'none';

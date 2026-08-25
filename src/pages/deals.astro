@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { buildAmazonAffiliateUrl, AFFILIATE_LINK_ATTRIBUTES } from '../utils/affiliate';
+
+const deals = await getCollection('deals');
+const categories = await getCollection('categories');
+const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Deals & Offers', url: '/deals/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title="Verified Amazon Deals & Offers in India | DesiOffers Guides"
+  description="Curated daily price drops and Amazon India sales recommendations across electronics, home appliances, and gaming."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container deals-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="deals-header">
+      <div class="deals-fire-badge">🔥 DAILY HANDPICKED DEALS</div>
+      <h1 class="deals-h1">Curated Amazon India Deals</h1>
+      <p class="deals-desc">
+        We scan and verify price drops on Amazon India so you get maximum discount value on high-rated products.
+      </p>
+    </header>
+
+    <div class="deals-grid">
+      {deals.map((deal) => {
+        const cat = categoryMap.get(deal.data.category.id);
+        const finalUrl = buildAmazonAffiliateUrl(deal.data.affiliateUrl || deal.data.asin || '');
+        return (
+          <div class="deal-card">
+            <div class="deal-header-row">
+              <span class="deal-cat-pill">{cat?.name || 'Deals'}</span>
+              <span class="discount-badge">-{deal.data.discountPercent}% OFF</span>
+            </div>
+
+            <h3 class="deal-title">{deal.data.title}</h3>
+            <p class="deal-brand">Brand: {deal.data.brand}</p>
+
+            <div class="deal-price-row">
+              <span class="current-deal-price">{deal.data.dealPrice}</span>
+              <span class="original-price">{deal.data.originalPrice}</span>
+            </div>
+
+            <div class="deal-footer-row">
+              <span class="verified-date">Verified: {deal.data.verifiedDate}</span>
+              <a
+                href={finalUrl}
+                rel={AFFILIATE_LINK_ATTRIBUTES.rel}
+                target={AFFILIATE_LINK_ATTRIBUTES.target}
+                class="btn btn-amazon deal-cta-btn"
+              >
+                Grab Deal →
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .deals-page-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  .deals-header {
+    margin-bottom: 2rem;
+  }
+  .deals-fire-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-danger);
+    background-color: var(--color-danger-bg);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+  .deals-h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .deals-desc {
+    font-size: 1.05rem;
+    color: var(--color-slate-600);
+    max-width: 800px;
+  }
+
+  .deals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .deal-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+  }
+  .deal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .deal-cat-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-slate-600);
+    background-color: var(--color-slate-100);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+  .discount-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-danger);
+    background-color: var(--color-danger-bg);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+  }
+  .deal-title {
+    font-size: 1.15rem;
+    margin-bottom: 0.25rem;
+  }
+  .deal-brand {
+    font-size: 0.85rem;
+    color: var(--color-slate-500);
+    margin-bottom: 1rem;
+  }
+  .deal-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+    margin-top: auto;
+  }
+  .current-deal-price {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+  }
+  .original-price {
+    font-size: 0.9rem;
+    color: var(--color-slate-400);
+    text-decoration: line-through;
+  }
+  .deal-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--color-slate-100);
+  }
+  .verified-date {
+    font-size: 0.75rem;
+    color: var(--color-success);
+    font-weight: 600;
+  }
+  .deal-cta-btn {
+    padding: 0.45rem 0.95rem;
+    font-size: 0.85rem;
+  }
+</style>

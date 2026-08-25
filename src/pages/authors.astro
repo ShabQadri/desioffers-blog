@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { SITE_CONFIG } from '../config/site';
+
+const authors = await getCollection('authors');
+
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Editorial Team', url: '/authors/', isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={`Our Editorial Team | ${SITE_CONFIG.name}`}
+  description="Meet the researchers, tech writers, and lifestyle reviewers behind DesiOffers product recommendations."
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container authors-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="authors-header">
+      <h1>Our Editorial Team</h1>
+      <p class="authors-lead">
+        Meet the writers and researchers dedicated to providing unbiased product recommendations for Indian consumers.
+      </p>
+    </header>
+
+    <div class="authors-grid">
+      {authors.map((author) => (
+        <div class="author-card">
+          <img src={author.data.avatar} alt={author.data.name} width="96" height="96" class="author-img" />
+          <div class="author-card-body">
+            <h2 class="author-name">{author.data.name}</h2>
+            <span class="author-role">{author.data.role}</span>
+            <p class="author-bio">{author.data.bio}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .authors-page-container { padding-top: 1rem; padding-bottom: 4rem; }
+  .authors-header { margin-bottom: 2.5rem; text-align: center; }
+  .authors-header h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+  .authors-lead { color: var(--color-slate-600); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+  .authors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto; }
+  .author-card { background: var(--color-white); border: 1px solid var(--color-slate-200); border-radius: var(--radius-lg); padding: 2rem; display: flex; gap: 1.25rem; align-items: flex-start; box-shadow: var(--shadow-sm); }
+  .author-img { border-radius: var(--radius-full); object-fit: cover; }
+  .author-name { font-size: 1.25rem; margin: 0 0 0.2rem 0; }
+  .author-role { font-size: 0.8rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; display: block; margin-bottom: 0.75rem; }
+  .author-bio { font-size: 0.875rem; color: var(--color-slate-600); line-height: 1.5; margin: 0; }
+</style>

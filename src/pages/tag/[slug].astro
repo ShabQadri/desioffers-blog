@@ -1,0 +1,133 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { getTagRobotsDirective } from '../../utils/taxonomy';
+
+export async function getStaticPaths() {
+  const tags: CollectionEntry<'tags'>[] = await getCollection('tags');
+  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }) => !data.draft);
+  const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
+  const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
+
+  const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+
+  return tags.map((tag) => {
+    const tagArticles = articles
+      .filter((a) => a.data.tags && a.data.tags.some((tRef: any) => tRef.id === tag.id))
+      .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+
+    return {
+      params: { slug: tag.data.slug },
+      props: {
+        tag: tag.data,
+        tagArticles,
+        categoryMap,
+        authorMap,
+      },
+    };
+  });
+}
+
+interface Props {
+  tag: CollectionEntry<'tags'>['data'];
+  tagArticles: CollectionEntry<'articles'>[];
+  categoryMap: Map<string, CollectionEntry<'categories'>['data']>;
+  authorMap: Map<string, CollectionEntry<'authors'>['data']>;
+}
+
+const { tag, tagArticles, categoryMap, authorMap } = Astro.props;
+
+const robotsDirective = getTagRobotsDirective(tag, tagArticles.length);
+const breadcrumbs = [
+  { label: 'Home', url: '/' },
+  { label: 'Topics', url: '#' },
+  { label: tag.name, url: `/tag/${tag.slug}/`, isCurrent: true },
+];
+---
+
+<BaseLayout
+  title={tag.seoTitle || `${tag.name} Product Guides & Recommendations | DesiOffers Guides`}
+  description={tag.seoDescription || tag.description}
+  robots={robotsDirective}
+  breadcrumbs={breadcrumbs}
+>
+  <div class="container tag-page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="tag-header">
+      <div class="tag-meta-badge">CONTROLLED TOPIC HUB</div>
+      <h1 class="tag-h1">{tag.name} Guides</h1>
+      <p class="tag-desc">{tag.description}</p>
+    </header>
+
+    {tag.status === 'merged' && tag.mergedIntoSlug && (
+      <div class="tag-merged-notice">
+        <p>ℹ️ This topic has been merged into <a href={`/tag/${tag.mergedIntoSlug}/`}>/tag/{tag.mergedIntoSlug}/</a>.</p>
+      </div>
+    )}
+
+    <div class="tag-articles-grid">
+      {tagArticles.map((article) => {
+        const cat = categoryMap.get(article.data.category.id);
+        const auth = authorMap.get(article.data.author.id);
+        return (
+          <ArticleCard
+            title={article.data.title}
+            slug={article.slug}
+            description={article.data.description}
+            categoryName={cat?.name || 'General'}
+            categorySlug={cat?.slug || 'gaming'}
+            heroImage={article.data.heroImage}
+            heroImageAlt={article.data.heroImageAlt}
+            publishedDate={article.data.publishedDate}
+            readingTime={article.data.readingTime}
+            authorName={auth?.name}
+          />
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .tag-page-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  .tag-header {
+    margin-bottom: 2rem;
+  }
+  .tag-meta-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-slate-500);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+  .tag-h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+  .tag-desc {
+    font-size: 1.05rem;
+    color: var(--color-slate-600);
+    max-width: 800px;
+  }
+
+  .tag-merged-notice {
+    background-color: var(--color-warning-bg);
+    border: 1px solid #fcd34d;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+  }
+
+  .tag-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+</style>

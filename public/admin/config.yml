@@ -1,0 +1,87 @@
+backend:
+  name: github
+  repo: desioffers/desioffers-blog
+  branch: main
+  base_url: https://blog.desioffers.com
+  auth_endpoint: /api/oauth
+
+media_folder: public/images/uploads
+public_folder: /images/uploads
+
+collections:
+  - name: articles
+    label: Articles & Buying Guides
+    folder: src/content/articles
+    create: true
+    slug: "{{slug}}"
+    extension: mdx
+    format: frontmatter
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Published Date, name: publishedDate, widget: datetime }
+      - { label: Updated Date, name: updatedDate, widget: datetime, required: false }
+      - { label: Last Verified Date, name: lastVerified, widget: datetime }
+      - { label: Product Data Verified, name: productDataVerified, widget: boolean, default: true }
+      - { label: Price Verified, name: priceVerified, widget: boolean, default: true }
+      - { label: Author, name: author, widget: relation, collection: authors, search_fields: [name], value_field: slug, display_fields: [name] }
+      - { label: Primary Category, name: category, widget: relation, collection: categories, search_fields: [name], value_field: slug, display_fields: [name] }
+      - { label: Subcategory, name: subcategory, widget: relation, collection: subcategories, search_fields: [name], value_field: slug, display_fields: [name], required: false }
+      - { label: Controlled Tags, name: tags, widget: relation, collection: tags, search_fields: [name], value_field: slug, display_fields: [name], multiple: true, required: false }
+      - { label: Hero Image, name: heroImage, widget: image }
+      - { label: Hero Image Alt, name: heroImageAlt, widget: string }
+      - { label: Featured Guide, name: featured, widget: boolean, default: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Article Body, name: body, widget: markdown }
+
+  - name: categories
+    label: Primary Categories
+    folder: src/content/categories
+    create: true
+    slug: "{{slug}}"
+    format: json
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Icon, name: icon, widget: string }
+      - { label: Color Hex, name: color, widget: string }
+
+  - name: subcategories
+    label: Subcategories
+    folder: src/content/subcategories
+    create: true
+    slug: "{{slug}}"
+    format: json
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Parent Category, name: category, widget: relation, collection: categories, search_fields: [name], value_field: slug, display_fields: [name] }
+      - { label: Description, name: description, widget: text }
+
+  - name: tags
+    label: Controlled Tags Registry
+    folder: src/content/tags
+    create: true
+    slug: "{{slug}}"
+    format: json
+    fields:
+      - { label: Tag Name, name: name, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Status, name: status, widget: select, options: ["active", "deprecated", "merged"], default: "active" }
+      - { label: Merged Into Slug, name: mergedIntoSlug, widget: string, required: false }
+
+  - name: authors
+    label: Authors
+    folder: src/content/authors
+    create: true
+    slug: "{{slug}}"
+    format: json
+    fields:
+      - { label: Name, name: name, widget: string }
+      - { label: Slug, name: slug, widget: string }
+      - { label: Role, name: role, widget: string }
+      - { label: Bio, name: text, widget: text }
+      - { label: Avatar Image, name: avatar, widget: image }

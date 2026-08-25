@@ -1,0 +1,60 @@
+---
+interface TagItem {
+  name: string;
+  slug: string;
+}
+
+interface Props {
+  tags: TagItem[];
+}
+
+const { tags } = Astro.props;
+if (!tags || tags.length === 0) return null;
+---
+
+<div class="article-tags-section">
+  <span class="tags-label">Related Topics:</span>
+  <div class="tags-list">
+    {tags.map((tag) => (
+      <a href={`/tag/${tag.slug}/`} class="tag-pill">
+        #{tag.name}
+      </a>
+    ))}
+  </div>
+</div>
+
+<style>
+  .article-tags-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 0;
+    margin-top: 2rem;
+    border-top: 1px dashed var(--color-slate-200);
+    font-size: 0.85rem;
+  }
+  .tags-label {
+    font-weight: 700;
+    color: var(--color-slate-700);
+    white-space: nowrap;
+  }
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tag-pill {
+    background-color: var(--color-slate-100);
+    color: var(--color-slate-700);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+  }
+  .tag-pill:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+</style>
