@@ -1,3 +1,4 @@
+# Sveltia CMS Configuration v1.0.0
 backend:
   name: github
   repo: ShabQadri/desioffers-blog
