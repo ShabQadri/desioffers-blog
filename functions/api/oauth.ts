@@ -16,13 +16,25 @@ export async function onRequest(context: any) {
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
 
+  // Step 1: Initial auth request from Sveltia CMS -> Redirect to GitHub OAuth
   if (!code) {
-    return new Response(JSON.stringify({ error: 'Missing OAuth authorization code' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
-    });
+    const clientId = env.GITHUB_CLIENT_ID;
+    if (!clientId) {
+      return new Response(JSON.stringify({ error: 'GITHUB_CLIENT_ID is not configured in environment variables' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
+      });
+    }
+
+    const githubAuthUrl = new URL('https://github.com/login/oauth/authorize');
+    githubAuthUrl.searchParams.set('client_id', clientId);
+    githubAuthUrl.searchParams.set('scope', 'repo,user');
+    if (state) githubAuthUrl.searchParams.set('state', state);
+
+    return Response.redirect(githubAuthUrl.toString(), 302);
   }
 
+  // Step 2: Callback from GitHub with authorization code -> Exchange for token
   try {
     const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
@@ -47,7 +59,7 @@ export async function onRequest(context: any) {
       });
     }
 
-    // Return authorization message formatted for Sveltia CMS postMessage listener
+    // Step 3: Return HTML payload posting message to window.opener for Sveltia CMS
     const content = `authorization:github:success:${JSON.stringify({
       token: data.access_token,
       provider: 'github',
@@ -56,6 +68,7 @@ export async function onRequest(context: any) {
     const html = `
       <!DOCTYPE html>
       <html>
+        <head><title>Authorizing Sveltia CMS...</title></head>
         <body>
           <script>
             (function() {
@@ -66,6 +79,7 @@ export async function onRequest(context: any) {
               window.opener.postMessage("authorizing:github", "*");
             })();
           </script>
+          <p>Authorizing with GitHub... You may close this window if it does not close automatically.</p>
         </body>
       </html>
     `;
