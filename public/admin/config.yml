@@ -2,6 +2,8 @@ backend:
   name: github
   repo: ShabQadri/desioffers-blog
   branch: main
+  auth_methods:
+    - token
 
 output:
   omit_empty_optional_fields: true
