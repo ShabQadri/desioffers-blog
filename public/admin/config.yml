@@ -2,11 +2,7 @@ backend:
   name: github
   repo: ShabQadri/desioffers-blog
   branch: main
-  base_url: https://blog.desioffers.com
-  auth_endpoint: /api/oauth
-
-output:
-  omit_empty_optional_fields: true
+  site_domain: blog.desioffers.com
 
 media_folder: public/images/uploads
 public_folder: /images/uploads
