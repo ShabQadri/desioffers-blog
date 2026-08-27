@@ -3,7 +3,7 @@ import ArticleLayout from '../layouts/ArticleLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
-  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
+  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => import.meta.env.DEV || !data.draft);
   const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
   const subcategories: CollectionEntry<'subcategories'>[] = await getCollection('subcategories');
   const authors: CollectionEntry<'authors'>[] = await getCollection('authors');

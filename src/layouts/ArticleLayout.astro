@@ -216,12 +216,7 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
         <!-- Quick Picks Summary -->
         {quickPicks && quickPicks.length > 0 && <QuickPicks picks={quickPicks} />}
 
-        <!-- Markdown Editorial Slot -->
-        <div class="editorial-prose">
-          <slot />
-        </div>
-
-        <!-- Recommended Products Showcase -->
+        <!-- Recommended Products Showcase (Directly below Quick Picks for high shopper utility) -->
         {products && products.length > 0 && (
           <section class="products-section" id="recommended-products" aria-label="Detailed Product Recommendations">
             <div class="section-title-header">
@@ -235,6 +230,11 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
             </div>
           </section>
         )}
+
+        <!-- Markdown Editorial Slot (Comparison Table, Editorial Analysis, How to Choose) -->
+        <div class="editorial-prose">
+          <slot />
+        </div>
 
         <!-- Selection Methodology Box -->
         <section class="methodology-card" aria-label="Our Selection Methodology">

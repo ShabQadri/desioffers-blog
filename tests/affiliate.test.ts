@@ -24,4 +24,12 @@ describe('Amazon Affiliate Link Integrity', () => {
     expect(AFFILIATE_LINK_ATTRIBUTES.rel).toContain('sponsored');
     expect(AFFILIATE_LINK_ATTRIBUTES.rel).toContain('nofollow');
   });
+
+  it('should construct valid Amazon affiliate URL by default without customTag parameter', () => {
+    const raw = 'https://www.amazon.in/dp/B016MAK38U';
+    const result = buildAmazonAffiliateUrl(raw);
+    expect(result.startsWith('https://www.amazon.in/dp/B016MAK38U')).toBe(true);
+    expect(result).toContain('tag=');
+    expect(result).toMatch(/tag=[a-z0-9-]+-21/);
+  });
 });

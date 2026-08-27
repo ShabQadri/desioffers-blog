@@ -15,10 +15,13 @@ async function uploadToR2() {
   const cfToken = env.CLOUDFLARE_API_TOKEN;
   const cfAccountId = env.CLOUDFLARE_ACCOUNT_ID;
   const bucketName = 'desioffers-media';
-  const objectKey = 'articles/2026/08/budget-gaming-mice-under-3000/hero.jpg';
+  const objectKey = 'articles/2026/08/best-wireless-neckbands-under-2000/hero.jpg';
 
-  const imagePath = 'C:\\Users\\Administrator\\.gemini\\antigravity\\brain\\dc9f178b-a0ae-45af-a02d-71b4d7b16ab4\\budget_gaming_mice_hero_1787807025440.jpg';
+  const imagePath = 'C:\\Users\\Administrator\\.gemini\\antigravity\\brain\\dc9f178b-a0ae-45af-a02d-71b4d7b16ab4\\neckbands_hero_photo_1787833287786.jpg';
   const imageBuffer = fs.readFileSync(imagePath);
+
+  // Copy to local static dir
+  fs.copyFileSync(imagePath, 'public/images/articles/best-wireless-neckbands-under-2000-hero.jpg');
 
   console.log(`1. Target Bucket:  ${bucketName}`);
   console.log(`2. Object Key:     ${objectKey}`);

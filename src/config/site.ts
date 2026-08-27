@@ -1,3 +1,36 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+function resolveAmazonAffiliateTag(): string {
+  // 1. Process environment (CI/CD, CLI, or Cloudflare Pages build env)
+  if (typeof process !== 'undefined' && process.env?.AMAZON_ASSOCIATE_TAG?.trim()) {
+    return process.env.AMAZON_ASSOCIATE_TAG.trim();
+  }
+
+  // 2. Vite / Astro environment
+  try {
+    if (typeof import.meta !== 'undefined' && (import.meta as any).env?.AMAZON_ASSOCIATE_TAG?.trim()) {
+      return (import.meta as any).env.AMAZON_ASSOCIATE_TAG.trim();
+    }
+  } catch {}
+
+  // 3. User local ~/.env file (secure local secrets store outside git)
+  try {
+    if (typeof process !== 'undefined' && process.env?.USERPROFILE) {
+      const envFile = path.join(process.env.USERPROFILE, '.env');
+      if (fs.existsSync(envFile)) {
+        const content = fs.readFileSync(envFile, 'utf8');
+        const match = content.match(/^AMAZON_ASSOCIATE_TAG\s*=\s*([^\r\n#]+)/m);
+        if (match && match[1]?.trim()) {
+          return match[1].trim();
+        }
+      }
+    }
+  } catch {}
+
+  return '';
+}
+
 export const SITE_CONFIG = {
   name: 'DesiOffers Guides',
   brandName: 'DesiOffers',
@@ -9,7 +42,7 @@ export const SITE_CONFIG = {
   defaultOgImage: '/images/brand/og-default.webp',
   author: 'DesiOffers Editorial Team',
   locale: 'en-IN',
-  amazonAffiliateTag: '', // Pending production Amazon Associates ID configuration
+  amazonAffiliateTag: resolveAmazonAffiliateTag(),
   amazonDisclosure: 'As an Amazon Associate I earn from qualifying purchases.',
   /**
    * Default author slug used by the AI authoring workflow.
