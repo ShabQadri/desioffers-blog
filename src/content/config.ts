@@ -184,7 +184,7 @@ const articlesCollection = defineCollection({
       pros: z.array(z.string()),
       cons: z.array(z.string()),
       priceDisplay: z.string().optional(),
-      priceObservedAt: z.string().optional(),
+      priceObservedAt: z.union([z.string(), z.date()]).transform((val) => (val instanceof Date ? val.toISOString() : val)).optional(),
       priceVerification: z.enum(['unknown', 'user-observed', 'verified']).default('unknown').optional(),
       availabilityNote: z.string().optional(),
       availabilityVerification: z.enum(['unknown', 'verified', 'out-of-stock']).default('unknown').optional(),

@@ -32,48 +32,59 @@ let errorsCount = 0;
 articleFiles.forEach(file => {
   const content = fs.readFileSync(path.join(articlesDir, file), 'utf-8');
   
-  // Extract Category
-  const catMatch = content.match(/category:\s*"([^"]+)"/);
-  if (!catMatch) {
+  // Extract Category (supports quoted or unquoted)
+  const catMatch = content.match(/^category:\s*["']?([^"'\r\n#]+)["']?/m);
+  if (!catMatch || !catMatch[1]?.trim()) {
     console.error(`❌ [${file}]: Missing mandatory primary category`);
     errorsCount++;
   } else {
-    const cat = catMatch[1];
+    const cat = catMatch[1].trim();
     if (!categorySlugs.has(cat)) {
       console.error(`❌ [${file}]: Invalid category "${cat}". Must exist in src/content/categories/`);
       errorsCount++;
     }
   }
 
-  // Extract Subcategory
-  const subMatch = content.match(/subcategory:\s*"([^"]+)"/);
-  if (subMatch && catMatch) {
-    const sub = subMatch[1];
+  // Extract Subcategory (supports quoted or unquoted)
+  const subMatch = content.match(/^subcategory:\s*["']?([^"'\r\n#]+)["']?/m);
+  if (subMatch && subMatch[1]?.trim() && catMatch) {
+    const sub = subMatch[1].trim();
     const parentCat = subcategoryMap.get(sub);
+    const cat = catMatch[1].trim();
     if (!parentCat) {
       console.error(`❌ [${file}]: Unknown subcategory "${sub}"`);
       errorsCount++;
-    } else if (parentCat !== catMatch[1]) {
-      console.error(`❌ [${file}]: Subcategory "${sub}" belongs to "${parentCat}", not "${catMatch[1]}"`);
+    } else if (parentCat !== cat) {
+      console.error(`❌ [${file}]: Subcategory "${sub}" belongs to "${parentCat}", not "${cat}"`);
       errorsCount++;
     }
   }
 
-  // Extract Tags
-  const tagsMatch = content.match(/tags:\s*\[(.*?)\]/);
-  if (tagsMatch) {
-    const rawTags = tagsMatch[1].split(',').map(t => t.replace(/["'\s]/g, '')).filter(Boolean);
-    if (rawTags.length > 6) {
-      console.error(`❌ [${file}]: Tag count exceeds maximum limit of 6 (found ${rawTags.length})`);
+  // Extract Tags (supports inline [tag1, tag2] or multi-line YAML list)
+  let rawTags: string[] = [];
+  const inlineTagsMatch = content.match(/^tags:\s*\[(.*?)\]/m);
+  if (inlineTagsMatch) {
+    rawTags = inlineTagsMatch[1].split(',').map(t => t.replace(/["'\s]/g, '')).filter(Boolean);
+  } else {
+    const listTagsMatch = content.match(/^tags:\s*\r?\n((?:\s*-\s*[^\r\n]+\r?\n?)+)/m);
+    if (listTagsMatch) {
+      rawTags = listTagsMatch[1]
+        .split(/\r?\n/)
+        .map(line => line.replace(/^\s*-\s*/, '').replace(/["'\s]/g, '').trim())
+        .filter(Boolean);
+    }
+  }
+
+  if (rawTags.length > 6) {
+    console.error(`❌ [${file}]: Tag count exceeds maximum limit of 6 (found ${rawTags.length})`);
+    errorsCount++;
+  }
+  rawTags.forEach(t => {
+    if (!tagSlugs.has(t)) {
+      console.error(`❌ [${file}]: Tag "${t}" not found in Controlled Tag Registry (src/content/tags/)`);
       errorsCount++;
     }
-    rawTags.forEach(t => {
-      if (!tagSlugs.has(t)) {
-        console.error(`❌ [${file}]: Tag "${t}" not found in Controlled Tag Registry (src/content/tags/)`);
-        errorsCount++;
-      }
-    });
-  }
+  });
 });
 
 if (errorsCount > 0) {
