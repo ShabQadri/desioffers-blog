@@ -13,8 +13,9 @@
       "@content/*": ["src/content/*"],
       "@utils/*": ["src/utils/*"],
       "@config/*": ["src/config/*"],
-      "@styles/*": ["src/styles/*"]
+      "@styles/*": ["src/styles/*"],
+      "@lib/*": ["src/lib/*"]
     }
   },
-  "include": ["src/**/*", "scripts/**/*", "tests/**/*", "astro.config.mjs"]
+  "include": [".astro/types.d.ts", "src/**/*", "scripts/**/*", "tests/**/*", "astro.config.mjs"]
 }

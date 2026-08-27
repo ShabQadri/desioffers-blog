@@ -11,6 +11,11 @@
     "check": "astro check && tsc --noEmit",
     "validate-content": "tsx scripts/validate-content.ts",
     "smoke-test": "tsx scripts/smoke-test.ts",
+    "draft": "tsx scripts/draft.ts",
+    "create-article": "tsx scripts/create-article.ts",
+    "publish": "tsx scripts/publish.ts",
+    "media:audit": "tsx scripts/media-audit.ts",
+    "review": "tsx scripts/review.ts",
     "test": "vitest run"
   },
   "dependencies": {

@@ -16,16 +16,27 @@ import { SITE_CONFIG } from '../config/site';
     <!-- Column 1: Brand & Mission -->
     <div class="footer-col brand-col">
       <div class="footer-logo">
-        <span class="logo-mark">D</span>
-        <span class="logo-text">DesiOffers <span class="logo-sub">Guides</span></span>
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+          </svg>
+        </div>
+        <span class="logo-text">Smart<span class="logo-accent">Finds</span> <span class="logo-sub">by DesiOffers</span></span>
       </div>
       <p class="footer-about">
-        DesiOffers Guides is an independent product discovery and buying-guide publication helping Indian shoppers find genuine recommendations without the marketing noise.
+        SmartFinds by DesiOffers delivers independent product discovery and buying-guide publications helping Indian shoppers find genuine recommendations without the marketing noise.
       </p>
       <div class="footer-socials">
-        <a href={SITE_CONFIG.social.telegram} target="_blank" rel="noopener" aria-label="Join Telegram">Telegram</a>
-        <a href={SITE_CONFIG.social.whatsapp} target="_blank" rel="noopener" aria-label="Join WhatsApp">WhatsApp</a>
-        <a href={SITE_CONFIG.social.twitter} target="_blank" rel="noopener" aria-label="Follow on Twitter">Twitter</a>
+        <a href={SITE_CONFIG.social.telegram} target="_blank" rel="noopener" aria-label="Join Telegram">
+          <span>Telegram</span>
+        </a>
+        <a href={SITE_CONFIG.social.whatsapp} target="_blank" rel="noopener" aria-label="Join WhatsApp">
+          <span>WhatsApp</span>
+        </a>
+        <a href={SITE_CONFIG.social.twitter} target="_blank" rel="noopener" aria-label="Follow on Twitter">
+          <span>Twitter</span>
+        </a>
       </div>
     </div>
 
@@ -108,28 +119,36 @@ import { SITE_CONFIG } from '../config/site';
     padding-top: 3.5rem;
     padding-bottom: 3.5rem;
   }
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
   .logo-mark {
     width: 32px;
     height: 32px;
-    background: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
-    font-weight: 800;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-sm);
-    margin-right: 0.5rem;
   }
   .logo-text {
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: var(--color-white);
+    letter-spacing: -0.02em;
+  }
+  .logo-accent {
+    color: #c4b5fd;
   }
   .logo-sub {
-    font-size: 0.75rem;
-    color: #fde047;
-    font-weight: 700;
+    font-size: 0.72rem;
+    color: var(--color-slate-400);
+    font-weight: 600;
+    margin-left: 0.25rem;
   }
   .footer-about {
     font-size: 0.85rem;

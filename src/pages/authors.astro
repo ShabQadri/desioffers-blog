@@ -1,10 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { SITE_CONFIG } from '../config/site';
 
-const authors = await getCollection('authors');
+const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
 
 const breadcrumbs = [
   { label: 'Home', url: '/' },
@@ -13,28 +13,34 @@ const breadcrumbs = [
 ---
 
 <BaseLayout
-  title={`Our Editorial Team | ${SITE_CONFIG.name}`}
-  description="Meet the researchers, tech writers, and lifestyle reviewers behind DesiOffers product recommendations."
+  title={`Editorial Team | ${SITE_CONFIG.name}`}
+  description="Meet the researchers and writers behind SmartFinds product recommendations and buying guides."
   breadcrumbs={breadcrumbs}
 >
   <div class="container authors-page-container">
     <Breadcrumbs items={breadcrumbs} />
 
-    <header class="authors-header">
-      <h1>Our Editorial Team</h1>
+    <!-- Editorial Header Card -->
+    <header class="authors-header-card">
+      <div class="header-badge-row">
+        <span class="authors-eyebrow">EDITORIAL TEAM</span>
+      </div>
+      <h1 class="authors-h1">SmartFinds Editorial Team</h1>
       <p class="authors-lead">
-        Meet the writers and researchers dedicated to providing unbiased product recommendations for Indian consumers.
+        Our guides are researched and written to provide clear, unbiased product recommendations for Indian shoppers.
       </p>
     </header>
 
     <div class="authors-grid">
-      {authors.map((author) => (
-        <div class="author-card">
-          <img src={author.data.avatar} alt={author.data.name} width="96" height="96" class="author-img" />
-          <div class="author-card-body">
+      {authors.map((author: CollectionEntry<'authors'>) => (
+        <div class="smart-author-card">
+          <div class="author-avatar-initial" aria-hidden="true">
+            {author.data.name.charAt(0)}
+          </div>
+          <div class="author-info">
             <h2 class="author-name">{author.data.name}</h2>
-            <span class="author-role">{author.data.role}</span>
-            <p class="author-bio">{author.data.bio}</p>
+            <span class="author-badge">Editorial Contributor</span>
+            <p class="author-note">Researches and curates product buying guides and comparisons across Indian e-commerce.</p>
           </div>
         </div>
       ))}
@@ -43,14 +49,127 @@ const breadcrumbs = [
 </BaseLayout>
 
 <style>
-  .authors-page-container { padding-top: 1rem; padding-bottom: 4rem; }
-  .authors-header { margin-bottom: 2.5rem; text-align: center; }
-  .authors-header h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
-  .authors-lead { color: var(--color-slate-600); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-  .authors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 900px; margin: 0 auto; }
-  .author-card { background: var(--color-white); border: 1px solid var(--color-slate-200); border-radius: var(--radius-lg); padding: 2rem; display: flex; gap: 1.25rem; align-items: flex-start; box-shadow: var(--shadow-sm); }
-  .author-img { border-radius: var(--radius-full); object-fit: cover; }
-  .author-name { font-size: 1.25rem; margin: 0 0 0.2rem 0; }
-  .author-role { font-size: 0.8rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; display: block; margin-bottom: 0.75rem; }
-  .author-bio { font-size: 0.875rem; color: var(--color-slate-600); line-height: 1.5; margin: 0; }
+  .authors-page-container {
+    padding-top: 1rem;
+    padding-bottom: 4rem;
+    max-width: 860px;
+  }
+
+  /* Header Card */
+  .authors-header-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-primary-light) 100%);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem 2.5rem;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-subtle);
+  }
+  .header-badge-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+  }
+  .authors-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .authors-h1 {
+    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--color-slate-900);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.6rem;
+    line-height: 1.15;
+  }
+  .authors-lead {
+    color: var(--color-slate-600);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Authors Grid */
+  .authors-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+  .smart-author-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .smart-author-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-border);
+  }
+  .author-avatar-initial {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #9333ea 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+  }
+  .author-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .author-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+    margin: 0 0 0.25rem 0;
+    line-height: 1.2;
+  }
+  .author-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.65rem;
+  }
+  .author-note {
+    font-size: 0.88rem;
+    color: var(--color-slate-600);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .authors-grid {
+      grid-template-columns: 1fr;
+    }
+    .authors-header-card {
+      padding: 1.5rem;
+    }
+  }
 </style>

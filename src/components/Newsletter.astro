@@ -1,0 +1,167 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Get the Best Indian Deals & Tech Guides',
+  description = 'Subscribe for handpicked Amazon India buying recommendations, specification-based advice, and price drop alerts. No spam, ever.',
+} = Astro.props;
+---
+
+<section class="newsletter-section" aria-label="Newsletter Subscription">
+  <div class="container">
+    <div class="newsletter-card">
+      <div class="newsletter-icon-badge">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+        </svg>
+      </div>
+
+      <div class="newsletter-text-group">
+        <h2 class="newsletter-heading">{title}</h2>
+        <p class="newsletter-subheading">{description}</p>
+      </div>
+
+      <form class="newsletter-form" id="newsletter-form">
+        <div class="form-input-wrapper">
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            required
+            aria-label="Email address for newsletter"
+            class="newsletter-input"
+          />
+          <button type="submit" class="btn btn-primary newsletter-submit-btn">
+            <span>Subscribe</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </div>
+        <span class="form-disclaimer">🔒 We respect your privacy. Unsubscribe anytime.</span>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('newsletter-form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Thank you for subscribing to DesiOffers Guides newsletter!');
+    });
+  }
+</script>
+
+<style>
+  .newsletter-section {
+    padding: 3rem 0;
+  }
+
+  .newsletter-card {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, #ede9fe 100%);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .newsletter-icon-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-white);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-purple);
+    margin-bottom: 1.25rem;
+  }
+
+  .newsletter-heading {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    color: var(--color-slate-900);
+    margin-bottom: 0.65rem;
+    letter-spacing: -0.02em;
+  }
+
+  .newsletter-subheading {
+    font-size: 0.96rem;
+    color: var(--color-slate-600);
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.75rem;
+    line-height: 1.6;
+  }
+
+  .newsletter-form {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .form-input-wrapper {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+    background-color: var(--color-white);
+    padding: 0.35rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-slate-300);
+    box-shadow: var(--shadow-subtle);
+  }
+  .form-input-wrapper:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  }
+
+  .newsletter-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.92rem;
+    font-family: inherit;
+    color: var(--color-slate-900);
+    background: transparent;
+  }
+
+  .newsletter-submit-btn {
+    flex-shrink: 0;
+    padding: 0.65rem 1.4rem;
+  }
+
+  .form-disclaimer {
+    font-size: 0.76rem;
+    color: var(--color-slate-500);
+  }
+
+  @media (max-width: 600px) {
+    .newsletter-card {
+      padding: 2.25rem 1.25rem;
+    }
+    .form-input-wrapper {
+      flex-direction: column;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    .newsletter-input {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-slate-300);
+      border-radius: var(--radius-md);
+    }
+  }
+</style>

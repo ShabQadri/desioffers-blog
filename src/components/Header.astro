@@ -4,11 +4,18 @@ import { SITE_CONFIG } from '../config/site';
 
 <div class="top-announcement-bar">
   <div class="container top-bar-content">
-    <span>💡 {SITE_CONFIG.amazonDisclosure}</span>
+    <div class="top-bar-left">
+      <span class="disclosure-badge">AFFILIATE DISCLOSURE</span>
+      <span class="disclosure-text">{SITE_CONFIG.amazonDisclosure}</span>
+    </div>
     <div class="top-right-group">
-      <a href={SITE_CONFIG.mainSiteUrl} class="main-site-link">Main DesiOffers Site →</a>
+      <a href={SITE_CONFIG.mainSiteUrl} class="main-site-link" target="_blank" rel="noopener">
+        <span>Main DesiOffers Portal</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+      </a>
       <div class="social-mini-links">
         <a href={SITE_CONFIG.social.telegram} target="_blank" rel="noopener" aria-label="Join Telegram Channel">Telegram</a>
+        <span class="divider">/</span>
         <a href={SITE_CONFIG.social.whatsapp} target="_blank" rel="noopener" aria-label="Join WhatsApp Channel">WhatsApp</a>
       </div>
     </div>
@@ -19,33 +26,81 @@ import { SITE_CONFIG } from '../config/site';
   <div class="container header-container">
     <!-- Left: Brand Logo & Tagline -->
     <a href="/" class="brand-logo" aria-label="DesiOffers Guides Home">
-      <div class="logo-mark">D</div>
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+        </svg>
+      </div>
       <div class="logo-text-group">
-        <span class="logo-title">DesiOffers<span class="accent-badge">Guides</span></span>
-        <span class="logo-tagline">{SITE_CONFIG.tagline}</span>
+        <span class="logo-title">Smart<span class="logo-accent">Finds</span> <span class="logo-sub">by DesiOffers</span></span>
       </div>
     </a>
 
     <!-- Center: Primary Desktop Navigation -->
     <nav class="desktop-nav" aria-label="Main Navigation">
       <a href="/" class="nav-link">Home</a>
-      <a href="/category/gaming/" class="nav-link">Gaming</a>
-      <a href="/category/beauty-makeup/" class="nav-link">Beauty</a>
-      <a href="/category/kitchen-appliances/" class="nav-link">Kitchen</a>
-      <a href="/category/electronics-audio/" class="nav-link">Electronics</a>
-      <a href="/category/home-living/" class="nav-link">Home & Living</a>
-      <a href="/deals/" class="nav-link deals-link">
-        <span class="deals-badge">🔥</span> Deals
+
+      <!-- Categories Dropdown Menu -->
+      <div class="nav-dropdown-wrapper">
+        <button class="nav-link nav-dropdown-btn" aria-haspopup="true" aria-expanded="false" id="categories-menu-button">
+          <span>Categories</span>
+          <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="nav-dropdown-menu" aria-labelledby="categories-menu-button">
+          <div class="dropdown-header">Department Guides</div>
+          <a href="/category/gaming/" class="dropdown-item">
+            <span class="dropdown-icon">🎮</span>
+            <div class="dropdown-item-text">
+              <strong>Gaming Peripherals</strong>
+              <small>Mice, keyboards, headsets & accessories</small>
+            </div>
+          </a>
+          <a href="/category/electronics-audio/" class="dropdown-item">
+            <span class="dropdown-icon">🎧</span>
+            <div class="dropdown-item-text">
+              <strong>Electronics & Audio</strong>
+              <small>TWS earbuds, headphones & tech gifts</small>
+            </div>
+          </a>
+          <a href="/category/kitchen-appliances/" class="dropdown-item">
+            <span class="dropdown-icon">🍳</span>
+            <div class="dropdown-item-text">
+              <strong>Kitchen & Appliances</strong>
+              <small>Air fryers, choppers & daily essentials</small>
+            </div>
+          </a>
+          <a href="/category/beauty-makeup/" class="dropdown-item">
+            <span class="dropdown-icon">💄</span>
+            <div class="dropdown-item-text">
+              <strong>Beauty & Makeup</strong>
+              <small>Beginner kits, skincare & sets</small>
+            </div>
+          </a>
+          <a href="/category/home-living/" class="dropdown-item">
+            <span class="dropdown-icon">🏠</span>
+            <div class="dropdown-item-text">
+              <strong>Home & Living</strong>
+              <small>Desk organizers & modern apartment finds</small>
+            </div>
+          </a>
+          <div class="dropdown-footer">
+            <a href="/deals/" class="dropdown-deals-link">🔥 View All Curated Amazon Deals →</a>
+          </div>
+        </div>
+      </div>
+
+      <a href="/deals/" class="nav-link deals-nav-link">
+        <span class="deals-fire">🔥</span> Deals
       </a>
-      <a href={SITE_CONFIG.mainSiteUrl} target="_blank" rel="noopener" class="nav-link main-site-nav-btn">
-        DesiOffers.com ↗
-      </a>
+      <a href="/about/" class="nav-link">About</a>
+      <a href="/contact/" class="nav-link">Contact</a>
     </nav>
 
-    <!-- Right: Search Button & Mobile Toggle -->
+    <!-- Right: Search & Action Controls -->
     <div class="header-actions">
-      <a href="/search/" class="search-btn" aria-label="Open Search Page">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <a href="/search/" class="search-btn" aria-label="Search Guides">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -53,7 +108,7 @@ import { SITE_CONFIG } from '../config/site';
       </a>
 
       <button id="mobile-menu-toggle" class="mobile-toggle-btn" aria-label="Toggle Mobile Navigation" aria-expanded="false">
-        <svg class="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg class="icon-menu" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -65,21 +120,28 @@ import { SITE_CONFIG } from '../config/site';
   <!-- Mobile Navigation Drawer -->
   <div id="mobile-nav-drawer" class="mobile-drawer" hidden>
     <nav class="mobile-nav-list">
-      <a href="/" class="mobile-nav-link">Home</a>
-      <a href="/category/gaming/" class="mobile-nav-link">Gaming Gear</a>
-      <a href="/category/beauty-makeup/" class="mobile-nav-link">Beauty & Makeup</a>
-      <a href="/category/kitchen-appliances/" class="mobile-nav-link">Kitchen & Appliances</a>
-      <a href="/category/electronics-audio/" class="mobile-nav-link">Electronics & Audio</a>
-      <a href="/category/home-living/" class="mobile-nav-link">Home & Living</a>
-      <a href="/deals/" class="mobile-nav-link deals-link">🔥 Amazon Deals & Offers</a>
-      <a href={SITE_CONFIG.mainSiteUrl} target="_blank" rel="noopener" class="mobile-nav-link highlight">Main DesiOffers.com ↗</a>
-      <a href="/about/" class="mobile-nav-link alt">About DesiOffers Guides</a>
-      <a href="/methodology/" class="mobile-nav-link alt">How We Select Products</a>
+      <div class="mobile-group-title">Navigation</div>
+      <a href="/" class="mobile-nav-link">🏠 Home</a>
+      <a href="/deals/" class="mobile-nav-link deals-highlight">🔥 Amazon India Deals & Price Drops</a>
+
+      <div class="mobile-group-title">Explore Categories</div>
+      <a href="/category/gaming/" class="mobile-nav-link">🎮 Gaming Peripherals</a>
+      <a href="/category/electronics-audio/" class="mobile-nav-link">🎧 Electronics & Audio</a>
+      <a href="/category/kitchen-appliances/" class="mobile-nav-link">🍳 Kitchen & Appliances</a>
+      <a href="/category/beauty-makeup/" class="mobile-nav-link">💄 Beauty & Makeup</a>
+      <a href="/category/home-living/" class="mobile-nav-link">🏠 Home & Living</a>
+
+      <div class="mobile-group-title">Editorial & Trust</div>
+      <a href="/about/" class="mobile-nav-link alt">About Us</a>
+      <a href="/methodology/" class="mobile-nav-link alt">Evaluation Methodology</a>
+      <a href="/contact/" class="mobile-nav-link alt">Contact Editorial Team</a>
+      <a href={SITE_CONFIG.mainSiteUrl} target="_blank" rel="noopener" class="mobile-nav-link portal-link">Main DesiOffers.com Portal ↗</a>
     </nav>
   </div>
 </header>
 
 <script>
+  // Mobile drawer toggle
   const toggleBtn = document.getElementById('mobile-menu-toggle');
   const drawer = document.getElementById('mobile-nav-drawer');
 
@@ -96,35 +158,72 @@ import { SITE_CONFIG } from '../config/site';
   .top-announcement-bar {
     background-color: var(--color-slate-900);
     color: var(--color-slate-300);
-    font-size: 0.75rem;
-    padding: 0.4rem 0;
+    font-size: 0.76rem;
+    padding: 0.45rem 0;
     border-bottom: 1px solid var(--color-slate-800);
   }
   .top-bar-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+  }
+  .top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .disclosure-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-xs);
+  }
+  .disclosure-text {
+    color: var(--color-slate-300);
+    font-size: 0.74rem;
   }
   .top-right-group {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1rem;
+    flex-shrink: 0;
   }
   .main-site-link {
     color: #fde047;
     font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
     text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .main-site-link:hover {
+    color: #ffffff;
   }
   .social-mini-links {
     display: flex;
-    gap: 0.8rem;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
   }
   .social-mini-links a {
     color: var(--color-slate-400);
     text-decoration: none;
+    transition: color 0.15s ease;
   }
   .social-mini-links a:hover {
-    color: var(--color-white);
+    color: #ffffff;
+  }
+  .social-mini-links .divider {
+    color: var(--color-slate-700);
   }
 
   .main-header {
@@ -133,6 +232,7 @@ import { SITE_CONFIG } from '../config/site';
     position: sticky;
     top: 0;
     z-index: 1000;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
   }
   .header-container {
     display: flex;
@@ -150,14 +250,12 @@ import { SITE_CONFIG } from '../config/site';
   .logo-mark {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
     color: var(--color-white);
-    font-weight: 800;
-    font-size: 1.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-purple);
   }
   .logo-text-group {
@@ -166,60 +264,144 @@ import { SITE_CONFIG } from '../config/site';
   }
   .logo-title {
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: var(--color-slate-900);
     line-height: 1.1;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
+    letter-spacing: -0.02em;
   }
-  .accent-badge {
-    font-size: 0.65rem;
-    font-weight: 800;
-    background-color: var(--color-primary-light);
+  .logo-accent {
     color: var(--color-primary);
-    padding: 0.15rem 0.45rem;
-    border-radius: var(--radius-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
   }
-  .logo-tagline {
+  .logo-sub {
     font-size: 0.68rem;
+    font-weight: 600;
     color: var(--color-slate-500);
-    font-weight: 500;
+    letter-spacing: 0;
+    margin-left: 0.25rem;
   }
 
+  /* Navigation Bar */
   .desktop-nav {
     display: flex;
     align-items: center;
-    gap: 1.1rem;
+    gap: 1.5rem;
   }
   .nav-link {
-    font-size: 0.875rem;
+    font-size: 0.92rem;
     font-weight: 600;
     color: var(--color-slate-700);
     text-decoration: none;
-    padding: 0.35rem 0;
+    padding: 0.5rem 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     transition: color 0.15s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
   }
   .nav-link:hover {
     color: var(--color-primary);
   }
-  .deals-link {
-    color: var(--color-danger);
-  }
-  .deals-link:hover {
-    color: #b91c1c;
-  }
-  .main-site-nav-btn {
-    color: var(--color-primary);
+  .deals-nav-link {
+    color: var(--color-deal);
     font-weight: 700;
-    background-color: var(--color-primary-light);
-    padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-full);
+  }
+  .deals-nav-link:hover {
+    color: #c2410c;
   }
 
+  /* Dropdown styling */
+  .nav-dropdown-wrapper {
+    position: relative;
+  }
+  .nav-dropdown-btn .chevron-icon {
+    transition: transform 0.2s ease;
+  }
+  .nav-dropdown-wrapper:hover .nav-dropdown-btn .chevron-icon,
+  .nav-dropdown-wrapper:focus-within .nav-dropdown-btn .chevron-icon {
+    transform: rotate(180deg);
+  }
+  .nav-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 320px;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 0.75rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+    z-index: 1001;
+  }
+  .nav-dropdown-wrapper:hover .nav-dropdown-menu,
+  .nav-dropdown-wrapper:focus-within .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .dropdown-header {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-slate-400);
+    padding: 0.4rem 0.6rem 0.25rem;
+  }
+  .dropdown-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+  .dropdown-item:hover {
+    background-color: var(--color-primary-light);
+  }
+  .dropdown-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+    margin-top: 0.1rem;
+  }
+  .dropdown-item-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .dropdown-item-text strong {
+    font-size: 0.88rem;
+    color: var(--color-slate-900);
+    font-weight: 600;
+  }
+  .dropdown-item-text small {
+    font-size: 0.74rem;
+    color: var(--color-slate-500);
+  }
+  .dropdown-footer {
+    border-top: 1px solid var(--color-slate-150);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  .dropdown-deals-link {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-deal);
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+  .dropdown-deals-link:hover {
+    background-color: var(--color-deal-bg);
+  }
+
+  /* Search & Actions */
   .header-actions {
     display: flex;
     align-items: center;
@@ -228,19 +410,21 @@ import { SITE_CONFIG } from '../config/site';
   .search-btn {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     background-color: var(--color-slate-100);
     color: var(--color-slate-700);
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem 0.9rem;
     border-radius: var(--radius-full);
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
-    transition: background-color 0.15s ease;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
   }
   .search-btn:hover {
     background-color: var(--color-slate-200);
     color: var(--color-slate-900);
+    border-color: var(--color-slate-300);
   }
 
   .mobile-toggle-btn {
@@ -250,31 +434,59 @@ import { SITE_CONFIG } from '../config/site';
     color: var(--color-slate-800);
     cursor: pointer;
     padding: 0.4rem;
+    border-radius: var(--radius-sm);
   }
 
+  /* Mobile Drawer */
   .mobile-drawer {
     display: none;
     background-color: var(--color-white);
     border-bottom: 1px solid var(--color-slate-200);
     padding: 1rem 1.25rem 1.5rem;
+    box-shadow: var(--shadow-md);
   }
   .mobile-nav-list {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.4rem;
+  }
+  .mobile-group-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-slate-400);
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  .mobile-group-title:first-child {
+    margin-top: 0;
   }
   .mobile-nav-link {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--color-slate-800);
     text-decoration: none;
+    padding: 0.45rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.15s ease;
   }
-  .mobile-nav-link.highlight {
+  .mobile-nav-link:hover {
+    background-color: var(--color-slate-100);
     color: var(--color-primary);
   }
+  .mobile-nav-link.deals-highlight {
+    color: var(--color-deal);
+    font-weight: 700;
+    background-color: var(--color-deal-bg);
+  }
   .mobile-nav-link.alt {
-    font-size: 0.9rem;
-    color: var(--color-slate-500);
+    font-size: 0.88rem;
+    color: var(--color-slate-600);
+  }
+  .mobile-nav-link.portal-link {
+    color: var(--color-primary);
+    font-weight: 700;
   }
 
   @media (max-width: 900px) {

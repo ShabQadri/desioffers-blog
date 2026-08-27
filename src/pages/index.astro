@@ -1,376 +1,465 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
+import HeroSlider, { type FeaturedSlideItem } from '../components/HeroSlider.astro';
 import CategoryCard from '../components/CategoryCard.astro';
-import { getCollection } from 'astro:content';
+import Newsletter from '../components/Newsletter.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { SITE_CONFIG } from '../config/site';
+import { getImageUrl } from '../utils/image';
+import { formatDate } from '../utils/time';
 
-const allArticles = await getCollection('articles', ({ data }) => !data.draft);
-const categories = await getCollection('categories');
-const authors = await getCollection('authors');
+// Strictly fetch only published, non-draft articles
+const allArticles = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
+const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
+const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
 
-// Sort articles by published date descending
+// Sort published articles by date descending
 const sortedArticles = allArticles.sort(
-  (a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime()
+  (a: CollectionEntry<'articles'>, b: CollectionEntry<'articles'>) =>
+    b.data.publishedDate.getTime() - a.data.publishedDate.getTime()
 );
 
-const featuredArticle = sortedArticles.find((a) => a.data.featured) || sortedArticles[0];
-const latestArticles = sortedArticles.filter((a) => a.slug !== featuredArticle.slug).slice(0, 6);
+// Helper maps
+const categoryMap = new Map<string, CollectionEntry<'categories'>['data']>(
+  categories.map((c: CollectionEntry<'categories'>) => [c.id, c.data])
+);
+const authorMap = new Map<string, CollectionEntry<'authors'>['data']>(
+  authors.map((a: CollectionEntry<'authors'>) => [a.id, a.data])
+);
 
-// Helper mapping for category name and author name
-const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
-const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+// Featured articles for slider (take up to 3 top guides)
+const featuredPool = sortedArticles.filter((a: CollectionEntry<'articles'>) => a.data.featured);
+const sliderArticles = (featuredPool.length >= 2 ? featuredPool : sortedArticles).slice(0, 3);
+
+const sliderSlides: FeaturedSlideItem[] = sliderArticles.map((article: CollectionEntry<'articles'>) => {
+  const cat = categoryMap.get(article.data.category.id);
+  const auth = authorMap.get(article.data.author.id);
+  return {
+    article,
+    categoryName: cat?.name || 'Buying Guide',
+    categorySlug: cat?.slug || 'gaming',
+    authorName: auth?.name || 'Editorial Team',
+  };
+});
+
+// Category cards with live published counts
+const categoryCards = categories.map((cat: CollectionEntry<'categories'>) => ({
+  name: cat.data.name,
+  slug: cat.data.slug,
+  color: cat.data.color,
+  icon: cat.data.icon,
+  guideCount: allArticles.filter((a: CollectionEntry<'articles'>) => a.data.category.id === cat.id).length,
+}));
+
+// Latest Feed articles & Popular articles pools
+const latestFeedArticles = sortedArticles.slice(0, 6);
+const popularArticles = sortedArticles.slice(2, 6);
+
+// Feed articles with category and author precomputed
+interface FeedArticleItem {
+  article: CollectionEntry<'articles'>;
+  categoryName: string;
+  categorySlug: string;
+  authorName: string;
+}
+
+const feedArticleItems: FeedArticleItem[] = latestFeedArticles.map((article: CollectionEntry<'articles'>) => {
+  const cat = categoryMap.get(article.data.category.id);
+  const auth = authorMap.get(article.data.author.id);
+  return {
+    article,
+    categoryName: cat?.name || 'General',
+    categorySlug: cat?.slug || 'gaming',
+    authorName: auth?.name || 'Editorial Team',
+  };
+});
+
+// Popular This Week articles with precomputed thumbnails and meta
+interface PopularArticleItem {
+  article: CollectionEntry<'articles'>;
+  categoryName: string;
+  thumbnailUrl: string;
+  formattedDate: string;
+}
+
+const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: CollectionEntry<'articles'>) => {
+  const cat = categoryMap.get(art.data.category.id);
+  return {
+    article: art,
+    categoryName: cat?.name || 'Guide',
+    thumbnailUrl: getImageUrl(art.data.heroImage, 'thumbnail'),
+    formattedDate: formatDate(art.data.publishedDate),
+  };
+});
 ---
 
 <BaseLayout
   title={`${SITE_CONFIG.name} | ${SITE_CONFIG.tagline}`}
   description={SITE_CONFIG.description}
 >
-  <!-- Hero Featured Article Area -->
-  <section class="hero-section">
+  <!-- 1. Hero Featured Article Slider -->
+  <HeroSlider slides={sliderSlides} />
+
+  <!-- 2. Top Categories Section -->
+  <section class="categories-section" aria-label="Browse Top Categories">
     <div class="container">
-      <div class="hero-card">
-        <div class="hero-content">
-          <div class="hero-badge">FEATURED BUYING GUIDE</div>
-          <h1 class="hero-title">
-            <a href={`/${featuredArticle.slug}/`}>{featuredArticle.data.title}</a>
-          </h1>
-          <p class="hero-description">{featuredArticle.data.description}</p>
-
-          <div class="hero-meta">
-            <span class="category-tag">{categoryMap.get(featuredArticle.data.category.id)?.name || 'Gaming'}</span>
-            <span class="dot">•</span>
-            <span>By {authorMap.get(featuredArticle.data.author.id)?.name || 'Rahul Sharma'}</span>
-            <span class="dot">•</span>
-            <span>{featuredArticle.data.readingTime} min read</span>
-          </div>
-
-          <div class="hero-actions">
-            <a href={`/${featuredArticle.slug}/`} class="btn btn-primary">
-              <span>Read the Full Guide</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
-          </div>
-        </div>
-
-        <div class="hero-image-wrapper">
-          <img
-            src={featuredArticle.data.heroImage}
-            alt={featuredArticle.data.heroImageAlt}
-            width="800"
-            height="533"
-            style="aspect-ratio: 3/2;"
-            loading="eager"
-            fetchpriority="high"
-            class="hero-img"
-            onerror="this.onerror=null;this.src='/images/brand/placeholder.webp';"
-          />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Top Categories Section -->
-  <section class="top-categories-section">
-    <div class="container">
-      <div class="section-header-row">
+      <div class="section-title-bar">
         <div>
-          <h2 class="section-heading">Browse Top Categories</h2>
-          <p class="section-subheading">Explore handpicked buying guides organized by department</p>
+          <h2 class="section-title">Top Categories</h2>
+          <p class="section-subtitle">Explore handpicked buying guides organized by department</p>
         </div>
       </div>
 
       <div class="categories-grid">
-        {categories.map((cat) => {
-          const catArticles = allArticles.filter((a) => a.data.category.id === cat.id);
-          return (
-            <a href={`/category/${cat.data.slug}/`} class="category-card-link">
-              <div class="category-card-box">
-                <div class="cat-icon-badge" style={`background-color: ${cat.data.color}15; color: ${cat.data.color};`}>
-                  {cat.data.name.charAt(0)}
-                </div>
-                <div class="cat-info">
-                  <h3 class="cat-name">{cat.data.name}</h3>
-                  <span class="cat-count">{catArticles.length} Guides</span>
-                </div>
-              </div>
-            </a>
-          );
-        })}
+        {categoryCards.map((cat) => (
+          <CategoryCard
+            name={cat.name}
+            slug={cat.slug}
+            guideCount={cat.guideCount}
+            color={cat.color}
+            icon={cat.icon}
+          />
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- Latest Articles Feed + Desktop Sidebar Layout -->
-  <section class="main-feed-section">
-    <div class="container feed-container-grid">
-      <!-- Main Content Feed -->
+  <!-- 3. Main Content: Latest Articles (2/3) + Sidebar (1/3) -->
+  <section class="main-content-section" aria-label="Latest Guides & Recommendations">
+    <div class="container feed-sidebar-layout">
+      <!-- Main Column: Latest Articles Feed -->
       <div class="feed-main-col">
-        <h2 class="section-heading">Latest Editorial Guides</h2>
+        <div class="section-title-bar">
+          <div>
+            <h2 class="section-title">Latest Buying Guides</h2>
+            <p class="section-subtitle">Specification-first evaluations with observed Indian pricing</p>
+          </div>
+          <a href="/deals/" class="section-top-link">
+            <span>View Hot Deals</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
+        </div>
 
-        <div class="articles-feed-grid">
-          {latestArticles.map((article) => {
-            const cat = categoryMap.get(article.data.category.id);
-            const auth = authorMap.get(article.data.author.id);
-            return (
-              <ArticleCard
-                title={article.data.title}
-                slug={article.slug}
-                description={article.data.description}
-                categoryName={cat?.name || 'General'}
-                categorySlug={cat?.slug || 'gaming'}
-                heroImage={article.data.heroImage}
-                heroImageAlt={article.data.heroImageAlt}
-                publishedDate={article.data.publishedDate}
-                readingTime={article.data.readingTime}
-                authorName={auth?.name}
-              />
-            );
-          })}
+        <div class="articles-feed-list">
+          {feedArticleItems.map(({ article, categoryName, categorySlug, authorName }) => (
+            <ArticleCard
+              title={article.data.title}
+              slug={article.slug}
+              description={article.data.description}
+              categoryName={categoryName}
+              categorySlug={categorySlug}
+              heroImage={article.data.heroImage}
+              heroImageAlt={article.data.heroImageAlt}
+              publishedDate={article.data.publishedDate}
+              readingTime={article.data.readingTime}
+              authorName={authorName}
+              layout="horizontal"
+            />
+          ))}
         </div>
       </div>
 
-      <!-- Desktop Sidebar -->
-      <aside class="feed-sidebar-col">
-        <div class="sidebar-box about-box">
-          <h3 class="sidebar-title">Why Trust DesiOffers?</h3>
-          <p class="sidebar-text">
-            We simplify product choices for Indian buyers with clear, specification-based research, verified INR pricing, and transparent Amazon affiliate disclosures.
+      <!-- Right Column: Sidebar Widgets -->
+      <aside class="sidebar-col">
+        <!-- Widget 1: About SmartFinds -->
+        <div class="sidebar-card about-widget">
+          <div class="widget-header">
+            <span class="widget-icon-pill">⭐</span>
+            <h3 class="widget-title">About SmartFinds</h3>
+          </div>
+          <p class="widget-text">
+            SmartFinds by DesiOffers delivers unbiased, specification-driven buying guides for Indian shoppers. We research genuine products, monitor observed prices, and disclose affiliate connections transparently.
           </p>
-          <a href="/methodology/" class="sidebar-link">Our Evaluation Process →</a>
+          <a href="/methodology/" class="widget-link">
+            <span>Our Editorial Standards</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </a>
         </div>
 
-        <!-- Sidebar Box 2: Join Channels -->
-        <div class="sidebar-box channels-box">
-          <h3 class="sidebar-title">Never Miss a Price Drop</h3>
-          <p class="sidebar-text">Get instant notifications on Amazon India lightning sales and price cut alerts.</p>
-          <div class="channel-buttons">
-            <a href={SITE_CONFIG.social.telegram} target="_blank" rel="noopener" class="btn btn-secondary channel-btn">
-              Join Telegram
-            </a>
-            <a href={SITE_CONFIG.social.whatsapp} target="_blank" rel="noopener" class="btn btn-secondary channel-btn">
-              Join WhatsApp
-            </a>
+        <!-- Widget 2: Popular This Week -->
+        <div class="sidebar-card popular-widget">
+          <div class="widget-header">
+            <span class="widget-icon-pill">🔥</span>
+            <h3 class="widget-title">Popular This Week</h3>
+          </div>
+          <div class="popular-list">
+            {popularArticleItems.map(({ article, categoryName, thumbnailUrl, formattedDate }, idx: number) => (
+              <a href={`/${article.slug}/`} class="popular-item" aria-label={`Read ${article.data.title}`}>
+                <div class="popular-num">{idx + 1}</div>
+                <img
+                  src={thumbnailUrl}
+                  alt={article.data.title}
+                  width="64"
+                  height="64"
+                  loading="lazy"
+                  class="popular-thumb"
+                  onerror="this.onerror=null;this.src='/images/brand/placeholder.svg';"
+                />
+                <div class="popular-info">
+                  <span class="popular-cat">{categoryName}</span>
+                  <h4 class="popular-title">{article.data.title}</h4>
+                  <span class="popular-date">{formattedDate}</span>
+                </div>
+              </a>
+            ))}
           </div>
         </div>
 
-        <!-- Sidebar Box 3: Popular Tags -->
-        <div class="sidebar-box tags-box">
-          <h3 class="sidebar-title">Popular Shopping Intent</h3>
-          <div class="sidebar-tags-cloud">
-            <a href="/tag/under-2000/">Under ₹2,000</a>
-            <a href="/tag/under-5000/">Under ₹5,000</a>
-            <a href="/tag/wireless/">Wireless Tech</a>
-            <a href="/tag/mechanical/">Mechanical Switches</a>
-            <a href="/tag/indian-homes/">Indian Homes</a>
-            <a href="/tag/budget/">Budget Finds</a>
+        <!-- Widget 3: Join Channels -->
+        <div class="sidebar-card channels-widget">
+          <div class="widget-header">
+            <span class="widget-icon-pill">🔔</span>
+            <h3 class="widget-title">Join Our Channels</h3>
+          </div>
+          <p class="widget-text">Get instant notifications on Amazon India lightning sales, price drops, and curated buying guides.</p>
+          <div class="channel-buttons-group">
+            <a href={SITE_CONFIG.social.telegram} target="_blank" rel="noopener" class="btn channel-btn telegram-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/></svg>
+              <span>Join Telegram</span>
+            </a>
+            <a href={SITE_CONFIG.social.whatsapp} target="_blank" rel="noopener" class="btn channel-btn whatsapp-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 01-1.26-4.36c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.71 4.3 3.8 2.53 1.09 2.53.73 2.99.69.46-.04 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29z"/></svg>
+              <span>Join WhatsApp</span>
+            </a>
           </div>
         </div>
       </aside>
     </div>
   </section>
+
+  <!-- 4. Newsletter Section -->
+  <Newsletter />
 </BaseLayout>
 
 <style>
-  .hero-section {
-    padding: 2rem 0;
+  /* Section Header Bars */
+  .section-title-bar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
   }
-  .hero-card {
+  .section-title {
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    color: var(--color-slate-900);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.02em;
+  }
+  .section-subtitle {
+    font-size: 0.9rem;
+    color: var(--color-slate-500);
+    margin: 0;
+  }
+  .section-top-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-deal);
+    text-decoration: none;
+    transition: gap 0.15s ease;
+    white-space: nowrap;
+  }
+  .section-top-link:hover {
+    gap: 0.5rem;
+    color: #c2410c;
+  }
+
+  /* Top Categories Section */
+  .categories-section {
+    padding: 1rem 0 2.5rem;
+  }
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1rem;
+  }
+
+  /* Main Feed & Sidebar Layout */
+  .main-content-section {
+    padding: 1.5rem 0 3rem;
+  }
+  .feed-sidebar-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .articles-feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* Sidebar Widgets */
+  .sidebar-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .sidebar-card {
     background-color: var(--color-white);
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-lg);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-subtle);
   }
-  .hero-content {
-    padding: 2.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .hero-badge {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--color-primary);
-    background-color: var(--color-primary-light);
-    padding: 0.3rem 0.75rem;
-    border-radius: var(--radius-full);
-    display: inline-block;
-    margin-bottom: 1rem;
-    align-self: flex-start;
-  }
-  .hero-title {
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    line-height: 1.25;
-    margin-bottom: 1rem;
-  }
-  .hero-title a {
-    color: var(--color-slate-900);
-    text-decoration: none;
-  }
-  .hero-title a:hover {
-    color: var(--color-primary);
-  }
-  .hero-description {
-    font-size: 1.05rem;
-    color: var(--color-slate-600);
-    line-height: 1.5;
-    margin-bottom: 1.5rem;
-  }
-  .hero-meta {
-    font-size: 0.85rem;
-    color: var(--color-slate-500);
+
+  .widget-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.85rem;
   }
-  .category-tag {
-    font-weight: 700;
-    color: var(--color-slate-800);
+  .widget-icon-pill {
+    font-size: 1.1rem;
   }
-
-  .hero-image-wrapper {
-    background-color: var(--color-slate-100);
-    overflow: hidden;
-  }
-  .hero-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .top-categories-section {
-    padding: 2rem 0 3rem;
-  }
-  .section-heading {
-    font-size: 1.6rem;
-    margin-bottom: 0.25rem;
-  }
-  .section-subheading {
-    font-size: 0.95rem;
-    color: var(--color-slate-500);
-    margin-bottom: 1.5rem;
-  }
-
-  .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-  }
-  .category-card-link {
-    text-decoration: none;
-  }
-  .category-card-box {
-    background-color: var(--color-white);
-    border: 1px solid var(--color-slate-200);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .category-card-box:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-    border-color: var(--color-slate-300);
-  }
-  .cat-icon-badge {
-    width: 42px;
-    height: 42px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1.2rem;
-  }
-  .cat-name {
-    font-size: 0.95rem;
+  .widget-title {
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--color-slate-900);
     margin: 0;
+    letter-spacing: -0.015em;
   }
-  .cat-count {
-    font-size: 0.75rem;
-    color: var(--color-slate-500);
-  }
-
-  .main-feed-section {
-    padding-bottom: 3rem;
-  }
-  .feed-container-grid {
-    display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 2.5rem;
-  }
-  .articles-feed-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-
-  .sidebar-box {
-    background-color: var(--color-white);
-    border: 1px solid var(--color-slate-200);
-    border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .sidebar-title {
-    font-size: 1.05rem;
-    margin-top: 0;
-    margin-bottom: 0.6rem;
-  }
-  .sidebar-text {
-    font-size: 0.875rem;
+  .widget-text {
+    font-size: 0.88rem;
     color: var(--color-slate-600);
+    line-height: 1.55;
     margin-bottom: 1rem;
-    line-height: 1.5;
   }
-  .sidebar-link {
+  .widget-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--color-primary);
+    text-decoration: none;
+    transition: gap 0.15s ease;
+  }
+  .widget-link:hover {
+    gap: 0.5rem;
+    color: var(--color-primary-hover);
   }
 
-  .channel-buttons {
+  /* Popular List */
+  .popular-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.85rem;
   }
-  .channel-btn {
-    font-size: 0.85rem;
-    padding: 0.5rem;
-  }
-
-  .sidebar-tags-cloud {
+  .popular-item {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  .sidebar-tags-cloud a {
-    background-color: var(--color-slate-100);
-    color: var(--color-slate-700);
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 0.25rem 0.6rem;
-    border-radius: var(--radius-full);
+    align-items: center;
+    gap: 0.75rem;
     text-decoration: none;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: background-color 0.15s ease;
   }
-  .sidebar-tags-cloud a:hover {
-    background-color: var(--color-primary-light);
+  .popular-item:hover {
+    background-color: var(--color-slate-100);
+  }
+  .popular-num {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-slate-300);
+    width: 20px;
+    text-align: center;
+  }
+  .popular-thumb {
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    background-color: var(--color-slate-100);
+    flex-shrink: 0;
+  }
+  .popular-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .popular-cat {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     color: var(--color-primary);
   }
+  .popular-title {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--color-slate-800);
+    line-height: 1.3;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .popular-item:hover .popular-title {
+    color: var(--color-primary);
+  }
+  .popular-date {
+    font-size: 0.72rem;
+    color: var(--color-slate-500);
+  }
 
-  @media (max-width: 900px) {
-    .hero-card { grid-template-columns: 1fr; }
-    .feed-container-grid { grid-template-columns: 1fr; }
+  /* Channel Buttons */
+  .channel-buttons-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .channel-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 0.65rem 1rem;
+  }
+  .telegram-btn {
+    background-color: #229ed9;
+    color: #ffffff;
+  }
+  .telegram-btn:hover {
+    background-color: #1b85b8;
+    color: #ffffff;
+  }
+  .whatsapp-btn {
+    background-color: #25d366;
+    color: #ffffff;
+  }
+  .whatsapp-btn:hover {
+    background-color: #1ebd59;
+    color: #ffffff;
+  }
+
+  /* Responsive Breakpoints */
+  @media (max-width: 1100px) {
+    .categories-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .feed-sidebar-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .categories-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .section-title-bar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
   }
 </style>

@@ -11,6 +11,12 @@ export const SITE_CONFIG = {
   locale: 'en-IN',
   amazonAffiliateTag: '', // Pending production Amazon Associates ID configuration
   amazonDisclosure: 'As an Amazon Associate I earn from qualifying purchases.',
+  /**
+   * Default author slug used by the AI authoring workflow.
+   * Must exactly match a slug in src/content/authors/.
+   * The draft workflow stops and asks if this is missing or invalid.
+   */
+  defaultAuthor: 'shaaz',
   social: {
     telegram: 'https://t.me/desioffers',
     whatsapp: 'https://whatsapp.com/channel/desioffers',

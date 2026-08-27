@@ -1,26 +1,53 @@
 ---
 import ArticleLayout from '../layouts/ArticleLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
-  const articles = await getCollection('articles', ({ data }) => !data.draft);
-  const categories = await getCollection('categories');
-  const subcategories = await getCollection('subcategories');
-  const authors = await getCollection('authors');
-  const tags = await getCollection('tags');
+  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
+  const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
+  const subcategories: CollectionEntry<'subcategories'>[] = await getCollection('subcategories');
+  const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
+  const tags: CollectionEntry<'tags'>[] = await getCollection('tags');
 
-  const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
-  const subcategoryMap = new Map(subcategories.map((sc) => [sc.id, sc.data]));
-  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
-  const tagMap = new Map(tags.map((t) => [t.id, t.data]));
+  const categoryMap = new Map<string, CollectionEntry<'categories'>['data']>(
+    categories.map((c: CollectionEntry<'categories'>) => [c.id, c.data])
+  );
+  const subcategoryMap = new Map<string, CollectionEntry<'subcategories'>['data']>(
+    subcategories.map((sc: CollectionEntry<'subcategories'>) => [sc.id, sc.data])
+  );
+  const authorMap = new Map<string, CollectionEntry<'authors'>['data']>(
+    authors.map((a: CollectionEntry<'authors'>) => [a.id, a.data])
+  );
+  const tagMap = new Map<string, CollectionEntry<'tags'>['data']>(
+    tags.map((t: CollectionEntry<'tags'>) => [t.id, t.data])
+  );
 
-  return articles.map((article) => {
+  return articles.map((article: CollectionEntry<'articles'>) => {
     const categoryData = categoryMap.get(article.data.category.id);
     const subcategoryData = article.data.subcategory ? subcategoryMap.get(article.data.subcategory.id) : undefined;
     const authorData = authorMap.get(article.data.author.id);
     const articleTags = (article.data.tags || [])
-      .map((tRef) => tagMap.get(tRef.id))
+      .map((tRef: { id: string }) => tagMap.get(tRef.id))
       .filter(Boolean) as { name: string; slug: string }[];
+
+    // Pick up to 3 related published articles from same category, or fallback to other published articles
+    const sameCatArticles = articles.filter(
+      (a: CollectionEntry<'articles'>) => a.slug !== article.slug && a.data.category.id === article.data.category.id
+    );
+    const otherArticles = articles.filter(
+      (a: CollectionEntry<'articles'>) => a.slug !== article.slug && a.data.category.id !== article.data.category.id
+    );
+    const relatedList = [...sameCatArticles, ...otherArticles].slice(0, 3);
+    const relatedArticles = relatedList.map((relArt: CollectionEntry<'articles'>) => {
+      const relCat = categoryMap.get(relArt.data.category.id);
+      const relAuth = authorMap.get(relArt.data.author.id);
+      return {
+        article: relArt,
+        categoryName: relCat?.name || 'Buying Guide',
+        categorySlug: relCat?.slug || 'gaming',
+        authorName: relAuth?.name || 'Editorial Team',
+      };
+    });
 
     return {
       params: { slug: article.slug },
@@ -30,12 +57,27 @@ export async function getStaticPaths() {
         subcategoryData,
         authorData,
         articleTags,
+        relatedArticles,
       },
     };
   });
 }
 
-const { article, categoryData, subcategoryData, authorData, articleTags } = Astro.props;
+interface Props {
+  article: CollectionEntry<'articles'>;
+  categoryData?: CollectionEntry<'categories'>['data'];
+  subcategoryData?: CollectionEntry<'subcategories'>['data'];
+  authorData?: CollectionEntry<'authors'>['data'];
+  articleTags: { name: string; slug: string }[];
+  relatedArticles?: Array<{
+    article: CollectionEntry<'articles'>;
+    categoryName: string;
+    categorySlug: string;
+    authorName?: string;
+  }>;
+}
+
+const { article, categoryData, subcategoryData, authorData, articleTags, relatedArticles = [] } = Astro.props;
 const { Content } = await article.render();
 ---
 
@@ -48,10 +90,7 @@ const { Content } = await article.render();
   lastVerified={article.data.lastVerified}
   readingTime={article.data.readingTime}
   author={{
-    name: authorData?.name || 'Editorial Reviewer',
-    role: authorData?.role || 'Staff Writer',
-    bio: authorData?.bio || 'DesiOffers Guides Editorial Team',
-    avatar: authorData?.avatar || '/images/brand/placeholder.webp',
+    name: authorData?.name || 'Shaaz',
   }}
   category={{
     name: categoryData?.name || 'General',
@@ -68,6 +107,7 @@ const { Content } = await article.render();
   products={article.data.products}
   faq={article.data.faq}
   affiliateDisclosure={article.data.affiliateDisclosure}
+  relatedArticles={relatedArticles}
 >
   <Content />
 </ArticleLayout>

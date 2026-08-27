@@ -23,19 +23,55 @@ collections:
       - { label: Title, name: title, widget: string }
       - { label: Slug, name: slug, widget: string }
       - { label: Description, name: description, widget: text }
+      - { label: Article Type, name: articleType, widget: select, options: ["buying-guide", "best-products", "comparison", "how-to-choose", "gift-guide", "deal-guide"], default: "buying-guide", required: false }
       - { label: Published Date, name: publishedDate, widget: datetime }
       - { label: Updated Date, name: updatedDate, widget: datetime, required: false }
       - { label: Last Verified Date, name: lastVerified, widget: datetime }
-      - { label: Product Data Verified, name: productDataVerified, widget: boolean, default: true }
-      - { label: Price Verified, name: priceVerified, widget: boolean, default: true }
+      - { label: Product Data Verified, name: productDataVerified, widget: boolean, default: false, comment: "Unverified product data must remain false until manual editorial validation." }
+      - { label: Price Verified, name: priceVerified, widget: boolean, default: false, comment: "Prices are point-in-time user observations unless explicitly verified." }
       - { label: Author, name: author, widget: relation, collection: authors, search_fields: [name], value_field: slug, display_fields: [name] }
       - { label: Primary Category, name: category, widget: relation, collection: categories, search_fields: [name], value_field: slug, display_fields: [name] }
       - { label: Subcategory, name: subcategory, widget: relation, collection: subcategories, search_fields: [name], value_field: slug, display_fields: [name], required: false }
       - { label: Controlled Tags, name: tags, widget: relation, collection: tags, search_fields: [name], value_field: slug, display_fields: [name], multiple: true, required: false }
       - { label: Hero Image, name: heroImage, widget: image }
       - { label: Hero Image Alt, name: heroImageAlt, widget: string }
+      - { label: Hero Image Status, name: heroImageStatus, widget: select, options: ["ready", "needs-generation", "fallback-approved"], default: "ready", required: false }
+      - { label: Hero Image Source, name: heroImageSource, widget: select, options: ["ai-generated", "user-provided", "licensed", "r2"], required: false }
+      - { label: Hero Image Rights Status, name: heroImageRightsStatus, widget: select, options: ["original", "authorized", "needs-review", "restricted"], default: "needs-review", required: false }
       - { label: Featured Guide, name: featured, widget: boolean, default: false }
-      - { label: Draft, name: draft, widget: boolean, default: false }
+      - { label: Draft Status, name: draft, widget: boolean, default: true, comment: "New articles are drafts. Review and validation are required before publication via the publish pipeline." }
+      - { label: Quick Picks, name: quickPicks, widget: list, required: false, fields: [
+          { label: Badge, name: badge, widget: string },
+          { label: Name, name: name, widget: string },
+          { label: ASIN, name: asin, widget: string, required: false },
+          { label: Affiliate URL, name: affiliateUrl, widget: string },
+          { label: Price Display, name: priceDisplay, widget: string, required: false }
+        ]}
+      - { label: Products, name: products, widget: list, required: false, fields: [
+          { label: Position, name: position, widget: number, value_type: int },
+          { label: Name, name: name, widget: string },
+          { label: Brand, name: brand, widget: string },
+          { label: Model, name: model, widget: string, required: false },
+          { label: ASIN, name: asin, widget: string, required: false },
+          { label: Product Image, name: image, widget: image, required: false },
+          { label: Image Alt, name: imageAlt, widget: string, required: false },
+          { label: Image Source, name: imageSource, widget: select, options: ["none", "r2", "ai-generated", "licensed", "amazon-api"], default: "none", required: false },
+          { label: Image Rights Status, name: imageRightsStatus, widget: select, options: ["original", "authorized", "needs-review", "restricted"], default: "needs-review", required: false },
+          { label: Editorial Badge, name: editorialBadge, widget: string, required: false },
+          { label: Short Description, name: shortDescription, widget: text },
+          { label: Best For, name: bestFor, widget: string },
+          { label: Pros, name: pros, widget: list },
+          { label: Cons, name: cons, widget: list },
+          { label: Price Display, name: priceDisplay, widget: string, required: false, comment: "Observed price (e.g. ₹1,299). Leave empty if not supplied." },
+          { label: Price Verification, name: priceVerification, widget: select, options: ["unknown", "user-observed", "verified"], default: "user-observed", required: false, comment: "Manually supplied prices are user-observed point-in-time observations." },
+          { label: Price Observed Date, name: priceObservedAt, widget: string, required: false, comment: "ISO date or timestamp when price was observed." },
+          { label: Availability Note, name: availabilityNote, widget: string, required: false },
+          { label: Affiliate URL, name: affiliateUrl, widget: string }
+        ]}
+      - { label: FAQ Items, name: faq, widget: list, required: false, fields: [
+          { label: Question, name: question, widget: string },
+          { label: Answer, name: answer, widget: text }
+        ]}
       - { label: Article Body, name: body, widget: markdown }
 
   - name: categories
@@ -79,12 +115,10 @@ collections:
   - name: authors
     label: Authors
     folder: src/content/authors
-    create: true
+    create: false
     slug: "{{slug}}"
     format: json
     fields:
       - { label: Name, name: name, widget: string }
       - { label: Slug, name: slug, widget: string }
-      - { label: Role, name: role, widget: string }
-      - { label: Bio, name: text, widget: text }
-      - { label: Avatar Image, name: avatar, widget: image }
+      - { label: Gender, name: gender, widget: select, options: ["male", "female"], required: false }

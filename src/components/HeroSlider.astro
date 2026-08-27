@@ -1,0 +1,446 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getImageUrl, getImageAttributes } from '../utils/image';
+
+export interface FeaturedSlideItem {
+  article: CollectionEntry<'articles'>;
+  categoryName: string;
+  categorySlug: string;
+  authorName: string;
+}
+
+interface Props {
+  slides: FeaturedSlideItem[];
+}
+
+const { slides } = Astro.props;
+---
+
+<section class="hero-slider-section" aria-label="Featured Buying Guides">
+  <div class="container">
+    <div class="slider-wrapper" id="featured-hero-slider" data-total-slides={slides.length}>
+      <div class="slider-track" id="slider-track">
+        {slides.map((slide: FeaturedSlideItem, index: number) => {
+          const imageUrl = getImageUrl(slide.article.data.heroImage, 'hero');
+          const imgAttrs = getImageAttributes('hero');
+          return (
+            <div
+              class={`slide-item ${index === 0 ? 'active' : ''}`}
+              data-slide-index={index}
+              aria-hidden={index !== 0 ? 'true' : 'false'}
+            >
+              <div class="slide-card">
+                <!-- Left: Editorial Text Panel -->
+                <div class="slide-content-panel">
+                  <div class="slide-header-meta">
+                    <span class="featured-badge">FEATURED GUIDE</span>
+                    <a href={`/category/${slide.categorySlug}/`} class="category-pill">
+                      {slide.categoryName}
+                    </a>
+                  </div>
+
+                  <h1 class="slide-title">
+                    <a href={`/${slide.article.slug}/`}>{slide.article.data.title}</a>
+                  </h1>
+
+                  <p class="slide-excerpt">{slide.article.data.description}</p>
+
+                  <div class="slide-meta-row">
+                    <span class="meta-item author">By {slide.authorName}</span>
+                    <span class="meta-dot">•</span>
+                    <span class="meta-item reading-time">{slide.article.data.readingTime} min read</span>
+                  </div>
+
+                  <div class="slide-actions-row">
+                    <a href={`/${slide.article.slug}/`} class="btn btn-primary slide-cta-btn">
+                      <span>Read Full Guide</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                    <a href={`/category/${slide.categorySlug}/`} class="slide-secondary-link">
+                      View all in {slide.categoryName} →
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Right: Large Hero Image -->
+                <div class="slide-image-panel">
+                  <a href={`/${slide.article.slug}/`} class="image-link" tab-index="-1" aria-label={`Read ${slide.article.data.title}`}>
+                    <img
+                      src={imageUrl}
+                      alt={slide.article.data.heroImageAlt || slide.article.data.title}
+                      width={imgAttrs.width}
+                      height={imgAttrs.height}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      decoding={index === 0 ? 'sync' : 'async'}
+                      fetchpriority={index === 0 ? 'high' : 'auto'}
+                      class="hero-img"
+                      onerror={`this.onerror=null;this.src='/images/articles/${slide.article.slug}-hero.jpg';this.addEventListener('error',()=>this.src='/images/brand/placeholder.svg');`}
+                    />
+                  </a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- Slider Controls (Prev / Next Arrows + Pagination Dots) -->
+      {slides.length > 1 && (
+        <div class="slider-controls-bar">
+          <div class="pagination-dots" role="tablist" aria-label="Slider Pagination">
+            {slides.map((_, i) => (
+              <button
+                class={`dot-btn ${i === 0 ? 'active' : ''}`}
+                data-target-slide={i}
+                role="tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+                aria-label={`Go to slide ${i + 1}`}
+              ></button>
+            ))}
+          </div>
+
+          <div class="nav-arrow-group">
+            <button id="slider-prev-btn" class="slider-arrow-btn" aria-label="Previous Slide">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button id="slider-next-btn" class="slider-arrow-btn" aria-label="Next Slide">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+  function setupSlider() {
+    const slider = document.getElementById('featured-hero-slider');
+    if (!slider) return;
+
+    const slides = slider.querySelectorAll<HTMLElement>('.slide-item');
+    const dots = slider.querySelectorAll<HTMLButtonElement>('.dot-btn');
+    const prevBtn = document.getElementById('slider-prev-btn');
+    const nextBtn = document.getElementById('slider-next-btn');
+
+    if (slides.length <= 1) return;
+
+    let currentIndex = 0;
+    let autoplayTimer: ReturnType<typeof setInterval> | null = null;
+    const interval = 6000;
+
+    function goToSlide(index: number) {
+      if (index < 0) index = slides.length - 1;
+      if (index >= slides.length) index = 0;
+
+      slides.forEach((slide, i) => {
+        const isActive = i === index;
+        slide.classList.toggle('active', isActive);
+        slide.setAttribute('aria-hidden', String(!isActive));
+      });
+
+      dots.forEach((dot, i) => {
+        const isActive = i === index;
+        dot.classList.toggle('active', isActive);
+        dot.setAttribute('aria-selected', String(isActive));
+      });
+
+      currentIndex = index;
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentIndex - 1);
+    }
+
+    function startAutoplay() {
+      // Respect prefers-reduced-motion
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (autoplayTimer) clearInterval(autoplayTimer);
+      autoplayTimer = setInterval(nextSlide, interval);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        nextSlide();
+        stopAutoplay();
+      });
+    }
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        prevSlide();
+        stopAutoplay();
+      });
+    }
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const target = Number(dot.getAttribute('data-target-slide') || 0);
+        goToSlide(target);
+        stopAutoplay();
+      });
+    });
+
+    slider.addEventListener('mouseenter', stopAutoplay);
+    slider.addEventListener('mouseleave', startAutoplay);
+    slider.addEventListener('focusin', stopAutoplay);
+    slider.addEventListener('focusout', startAutoplay);
+
+    // Keyboard navigation (ArrowLeft / ArrowRight)
+    slider.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        prevSlide();
+        stopAutoplay();
+      } else if (e.key === 'ArrowRight') {
+        nextSlide();
+        stopAutoplay();
+      }
+    });
+
+    startAutoplay();
+  }
+
+  setupSlider();
+</script>
+
+<style>
+  .hero-slider-section {
+    padding: 1.75rem 0 2rem;
+  }
+  .slider-wrapper {
+    position: relative;
+  }
+  .slider-track {
+    position: relative;
+  }
+  .slide-item {
+    display: none;
+    animation: fadeIn 0.4s ease-in-out;
+  }
+  .slide-item.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.995); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .slide-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xl);
+    display: grid;
+    grid-template-columns: 46% 54%;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    min-height: 400px;
+  }
+
+  /* Left Editorial Panel */
+  .slide-content-panel {
+    background-color: var(--color-primary-subtle);
+    padding: 2.75rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--color-slate-200);
+  }
+
+  .slide-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .featured-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.05em;
+  }
+
+  .category-pill {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--color-slate-700);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    padding: 0.22rem 0.65rem;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .category-pill:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary-border);
+  }
+
+  .slide-title {
+    font-size: clamp(1.6rem, 2.5vw, 2.25rem);
+    line-height: 1.22;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+  }
+  .slide-title a {
+    color: var(--color-slate-900);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .slide-title a:hover {
+    color: var(--color-primary);
+  }
+
+  .slide-excerpt {
+    font-size: 0.96rem;
+    color: var(--color-slate-600);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .slide-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--color-slate-500);
+    font-weight: 500;
+    margin-bottom: 1.75rem;
+  }
+  .meta-dot {
+    color: var(--color-slate-400);
+  }
+
+  .slide-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .slide-cta-btn {
+    padding: 0.75rem 1.4rem;
+    font-size: 0.95rem;
+  }
+  .slide-secondary-link {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-slate-700);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .slide-secondary-link:hover {
+    color: var(--color-primary);
+  }
+
+  /* Right Hero Image Panel */
+  .slide-image-panel {
+    position: relative;
+    background-color: var(--color-slate-100);
+    overflow: hidden;
+  }
+  .image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    min-height: 380px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .slide-card:hover .hero-img {
+    transform: scale(1.02);
+  }
+
+  /* Controls Bar */
+  .slider-controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  .pagination-dots {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dot-btn {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-slate-300);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+  .dot-btn.active {
+    width: 28px;
+    background-color: var(--color-primary);
+  }
+
+  .nav-arrow-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .slider-arrow-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    color: var(--color-slate-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s ease;
+  }
+  .slider-arrow-btn:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary-border);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 900px) {
+    .slide-card {
+      grid-template-columns: 1fr;
+    }
+    .slide-content-panel {
+      padding: 2rem 1.5rem;
+      border-right: none;
+      border-bottom: 1px solid var(--color-slate-200);
+    }
+    .hero-img {
+      min-height: 240px;
+      max-height: 320px;
+    }
+  }
+</style>

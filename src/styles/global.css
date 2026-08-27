@@ -1,13 +1,16 @@
 /* Modern Editorial Design System for PickWise India */
 
 :root {
-  /* Brand Accents */
+  /* Brand Accents - Refined SmartFinds Purple */
   --color-primary: #7c3aed;
   --color-primary-hover: #6d28d9;
+  --color-primary-dark: #5b21b6;
   --color-primary-light: #f5f3ff;
+  --color-primary-subtle: #faf8ff;
   --color-primary-border: #ddd6fe;
 
-  /* Slate Dark Charcoal Typography & Surfaces */
+  /* Neutral Slate Typography & Surfaces */
+  --color-slate-950: #020617;
   --color-slate-900: #0f172a;
   --color-slate-800: #1e293b;
   --color-slate-700: #334155;
@@ -16,6 +19,7 @@
   --color-slate-400: #94a3b8;
   --color-slate-300: #cbd5e1;
   --color-slate-200: #e2e8f0;
+  --color-slate-150: #edf2f7;
   --color-slate-100: #f1f5f9;
   --color-slate-50:  #f8fafc;
   --color-white:     #ffffff;
@@ -27,6 +31,8 @@
   --color-danger-bg: #fef2f2;
   --color-warning: #d97706;
   --color-warning-bg: #fffbeb;
+  --color-deal: #ea580c;
+  --color-deal-bg: #fff7ed;
 
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -35,16 +41,21 @@
   /* Layout Spacing & Container */
   --container-max-width: 1240px;
   --header-height: 72px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
+
+  /* Standardized Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
   --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
-  --shadow-purple: 0 4px 14px 0 rgba(124, 58, 237, 0.25);
+  /* Refined Shadows */
+  --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+  --shadow-purple: 0 4px 14px 0 rgba(124, 58, 237, 0.2);
 }
 
 *, *::before, *::after {

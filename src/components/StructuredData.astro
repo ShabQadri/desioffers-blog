@@ -4,20 +4,22 @@ import type { BreadcrumbItem } from '../utils/taxonomy';
 
 interface Props {
   type?: 'website' | 'article';
+  canonicalUrl?: string;
   articleData?: {
     title: string;
     description: string;
     publishedDate: string;
     updatedDate?: string;
-    heroImage: string;
+    heroImage?: string;
     authorName: string;
     authorRole?: string;
     url: string;
+    faq?: Array<{ question: string; answer: string }>;
   };
   breadcrumbs?: BreadcrumbItem[];
 }
 
-const { type = 'website', articleData, breadcrumbs } = Astro.props;
+const { type = 'website', canonicalUrl, articleData, breadcrumbs } = Astro.props;
 
 // 1. Organization Schema
 const organizationSchema = {
@@ -25,13 +27,16 @@ const organizationSchema = {
   '@type': 'Organization',
   name: SITE_CONFIG.name,
   url: SITE_CONFIG.url,
-  logo: `${SITE_CONFIG.url}/images/brand/logo.png`,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_CONFIG.url}/images/brand/logo.png`,
+  },
   description: SITE_CONFIG.description,
   sameAs: [
     SITE_CONFIG.social.telegram,
     SITE_CONFIG.social.whatsapp,
     SITE_CONFIG.social.twitter,
-  ],
+  ].filter(Boolean),
 };
 
 // 2. WebSite Schema
@@ -54,18 +59,36 @@ if (breadcrumbs && breadcrumbs.length > 0) {
   breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: breadcrumbs.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.label,
-      item: item.url.startsWith('/') ? `${SITE_CONFIG.url}${item.url}` : item.url,
-    })),
+    itemListElement: breadcrumbs.map((item, index) => {
+      let resolvedItemUrl = item.url;
+      if (item.url === '#' || item.isCurrent) {
+        resolvedItemUrl = articleData?.url || canonicalUrl || Astro.url.href;
+      } else if (item.url.startsWith('/')) {
+        resolvedItemUrl = `${SITE_CONFIG.url}${item.url}`;
+      }
+
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.label,
+        item: resolvedItemUrl,
+      };
+    }),
   };
 }
 
-// 4. Article / BlogPosting Schema (Non-fabricated)
+// 4. Article Schema
 let articleSchema = null;
 if (type === 'article' && articleData) {
+  let resolvedImage: string | undefined = undefined;
+  if (articleData.heroImage && articleData.heroImage.trim() !== '') {
+    if (articleData.heroImage.startsWith('http://') || articleData.heroImage.startsWith('https://')) {
+      resolvedImage = articleData.heroImage;
+    } else if (articleData.heroImage.startsWith('/')) {
+      resolvedImage = `${SITE_CONFIG.url}${articleData.heroImage}`;
+    }
+  }
+
   articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -75,19 +98,17 @@ if (type === 'article' && articleData) {
     },
     headline: articleData.title,
     description: articleData.description,
-    image: articleData.heroImage.startsWith('http')
-      ? articleData.heroImage
-      : `${SITE_CONFIG.url}${articleData.heroImage}`,
+    ...(resolvedImage ? { image: resolvedImage } : {}),
     datePublished: articleData.publishedDate,
     dateModified: articleData.updatedDate || articleData.publishedDate,
     author: {
       '@type': 'Person',
       name: articleData.authorName,
-      jobTitle: articleData.authorRole || 'Editorial Reviewer',
     },
     publisher: {
       '@type': 'Organization',
       name: SITE_CONFIG.name,
+      url: SITE_CONFIG.url,
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_CONFIG.url}/images/brand/logo.png`,
@@ -95,9 +116,27 @@ if (type === 'article' && articleData) {
     },
   };
 }
+
+// 5. FAQPage Schema (Only generated when FAQs actually exist)
+let faqSchema = null;
+if (type === 'article' && articleData?.faq && articleData.faq.length > 0) {
+  faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: articleData.faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+}
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
-<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
-{breadcrumbSchema && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />}
-{articleSchema && <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />}
+<script type="application/ld+json" is:inline set:html={JSON.stringify(organizationSchema)} />
+<script type="application/ld+json" is:inline set:html={JSON.stringify(websiteSchema)} />
+{breadcrumbSchema && <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbSchema)} />}
+{articleSchema && <script type="application/ld+json" is:inline set:html={JSON.stringify(articleSchema)} />}
+{faqSchema && <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />}

@@ -15,33 +15,38 @@ export const IMAGE_VARIANTS: Record<ImageVariant, ImageVariantDimensions> = {
   social: { width: 1200, height: 630, aspectRatio: '1.91/1' },
 };
 
-/**
- * Fallback WebP / Data SVG image URL if an image fails or is missing.
- */
-export const FALLBACK_IMAGE_URL = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><rect width="800" height="450" fill="%23f1f5f9"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="700" fill="%2364748b">DesiOffers Guides</text></svg>`;
+export const FALLBACK_IMAGE_URL = '/images/brand/placeholder.svg';
 
 /**
  * Generates a public Cloudflare Images transformation URL for a private R2 object key.
  * Enforces controlled variant widths and protects private R2 bucket access.
+ *
+ * In local development (`import.meta.env.DEV`), resolves to local preview asset
+ * if available in `public/images/articles/` so localhost renders without 404s.
  */
 export function getImageUrl(sourceKey: string | undefined | null, variant: ImageVariant = 'card'): string {
-  if (!sourceKey) {
+  if (!sourceKey || sourceKey.trim() === '') {
     return FALLBACK_IMAGE_URL;
   }
 
-  // If sourceKey is already a local static asset (e.g. starting with /images/)
-  if (sourceKey.startsWith('/')) {
-    return sourceKey;
+  const trimmed = sourceKey.trim();
+
+  // If already a local static asset (e.g. starting with /images/)
+  if (trimmed.startsWith('/')) {
+    return trimmed;
   }
 
+  // If external URL
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+
+  const cleanKey = trimmed.replace(/^\/+/, '');
   const dimensions = IMAGE_VARIANTS[variant] || IMAGE_VARIANTS.card;
   const widthParam = `w=${dimensions.width}`;
   const fitParam = dimensions.height ? `h=${dimensions.height},fit=crop` : 'fit=scale-down';
   const formatParam = 'f=auto,q=85';
-
-  // Cloudflare Images Transformation delivery URL structure:
-  // https://blog.desioffers.com/cdn-cgi/image/w=800,fit=crop,f=auto/articles/2026/08/hero.webp
-  const cleanKey = sourceKey.replace(/^\/+/, '');
+  // Cloudflare Images Transformation delivery URL structure in production
   return `/cdn-cgi/image/${widthParam},${fitParam},${formatParam}/${cleanKey}`;
 }
 

@@ -10,42 +10,52 @@ const breadcrumbs = [
 ---
 
 <BaseLayout
-  title={`Our Evaluation Methodology | ${SITE_CONFIG.name}`}
-  description="Learn how DesiOffers Guides researches, evaluates, and selects products for Indian consumers."
+  title={`How We Research Products | ${SITE_CONFIG.name}`}
+  description="Learn how SmartFinds researches and selects products for Indian consumers — based on specifications, compatibility, price, and transparency."
   breadcrumbs={breadcrumbs}
 >
   <div class="container static-page-container">
     <Breadcrumbs items={breadcrumbs} />
 
     <article class="static-article">
-      <h1>Our Evaluation & Selection Methodology</h1>
+      <h1>How We Research &amp; Select Products</h1>
       <p class="lead-text">
-        At DesiOffers Guides, we believe a great buying guide should save you time and money by cutting through manufacturer marketing jargon. Here is how we research and select every product featured on our platform.
+        Every buying guide on SmartFinds is produced through editorial research. This page explains exactly what that means — and what it does not mean.
       </p>
 
-      <h2>1. Specification & Build Quality Research</h2>
+      <h2>1. Specification Research</h2>
       <p>
-        We analyze technical datasheets, component specifications (such as switch types in keyboards, sensor models in gaming mice, or driver sizes in TWS earbuds), and thermal performance under real-world usage conditions.
+        We study publicly available product specifications from manufacturers and authorised brand pages. For electronics, this includes driver sizes, sensor models, battery capacities, connectivity standards, and IP ratings. For kitchen appliances, this includes capacity, wattage, and temperature range. We do not claim to measure these specifications ourselves.
       </p>
 
-      <h2>2. Suitability for Indian Consumers</h2>
+      <h2>2. Indian Market Suitability</h2>
       <p>
-        Products sold in India must suit local conditions. We evaluate voltage and power surge tolerance, official manufacturer warranty support in major Indian cities, and performance in humid climates.
+        We assess whether products are officially distributed in India, carry manufacturer warranty coverage applicable to Indian purchasers, and are compatible with Indian voltage and socket standards where relevant. This assessment is based on published product listings and brand documentation — not independent laboratory testing.
       </p>
 
-      <h2>3. Value for Money (INR Pricing)</h2>
+      <h2>3. Value-for-Money Comparison (INR Pricing)</h2>
       <p>
-        A product priced at ₹2,500 must deliver tangible advantages over a ₹1,500 alternative. We compare features against price points to identify genuine "Best Budget" and "Best Value" picks.
+        We compare features and specifications across price brackets to identify genuine value differences. Prices shown in our guides are point-in-time observations recorded from Amazon India. We do not invent prices, and we do not claim prices are live or current. Amazon pricing changes frequently — always verify at the time of purchase.
       </p>
 
-      <h2>4. Real Customer Sentiment & Long-Term Reliability</h2>
+      <h2>4. Comparative Editorial Research</h2>
       <p>
-        We cross-reference customer feedback across Amazon India to spot recurring build defects, cable wear issues, or battery degradation over 6-12 months of use.
+        We compare multiple products side by side using manufacturer-published data, product feature lists, and compatibility information. We look for meaningful differentiating factors — such as weight, connectivity, or interface — that help readers match a product to their actual use case.
       </p>
 
-      <h2>5. Verification & Transparency Rules</h2>
+      <h2>5. Transparency: What We Do and Do Not Do</h2>
+      <ul>
+        <li><strong>No hands-on testing:</strong> We do not claim to have physically tested products unless we explicitly state so. We have not performed hands-on studio testing, long-term ownership trials, or independent laboratory benchmarks for the current article inventory.</li>
+        <li><strong>No customer research:</strong> We do not conduct proprietary customer surveys or aggregate private review data. We do not claim to represent aggregate buyer sentiment.</li>
+        <li><strong>No invented specifications:</strong> We do not fabricate, estimate, or extrapolate product specifications. If a specification is not published by the manufacturer, we do not include it.</li>
+        <li><strong>No invented prices:</strong> Prices are observed point-in-time from Amazon India listings. We do not calculate discounts unless both the original price and sale price are clearly stated in the product listing.</li>
+        <li><strong>Verified dates:</strong> Each buying guide carries a <em>Last Verified</em> date indicating when we last confirmed product availability and price data.</li>
+        <li><strong>Future testing:</strong> When we conduct actual hands-on testing, we will explicitly label guides accordingly. Unlabelled guides are specification-based research only.</li>
+      </ul>
+
+      <h2>6. Affiliate Relationship Disclosure</h2>
       <p>
-        We strictly distinguish between hands-on studio testing and specification-based comparative analysis. Every buying guide features an explicit <em>Last Verified</em> date stamp.
+        SmartFinds participates in the Amazon Associates affiliate programme. When you click an outbound link and purchase on Amazon.in, we may earn a small commission at no extra cost to you. This does not influence product selection, rankings, or editorial verdicts. Full details are on our <a href="/affiliate-disclosure/">Affiliate Disclosure</a> page.
       </p>
     </article>
   </div>
@@ -58,4 +68,7 @@ const breadcrumbs = [
   .lead-text { font-size: 1.15rem; color: var(--color-slate-700); line-height: 1.6; margin-bottom: 2rem; }
   .static-article h2 { font-size: 1.3rem; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--color-primary); }
   .static-article p { margin-bottom: 1.25rem; color: var(--color-slate-700); line-height: 1.6; }
+  .static-article ul { margin-left: 1.25rem; margin-bottom: 1.5rem; }
+  .static-article li { margin-bottom: 0.5rem; color: var(--color-slate-700); line-height: 1.6; }
+  .static-article a { color: var(--color-primary); text-decoration: underline; }
 </style>

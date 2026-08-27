@@ -3,11 +3,13 @@ import BaseLayout from './BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import QuickPicks from '../components/QuickPicks.astro';
 import ProductCard from '../components/ProductCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
 import ArticleTags from '../components/ArticleTags.astro';
 import { getImageUrl, getImageAttributes } from '../utils/image';
 import { formatDate } from '../utils/time';
 import { buildBreadcrumbs } from '../utils/taxonomy';
 import { SITE_CONFIG } from '../config/site';
+import type { CollectionEntry } from 'astro:content';
 
 interface ProductItem {
   position: number;
@@ -17,14 +19,20 @@ interface ProductItem {
   asin?: string;
   image: string;
   imageAlt: string;
+  imageSource?: string;
+  imageRightsStatus?: string;
   editorialBadge?: string;
   shortDescription: string;
   bestFor: string;
   pros: string[];
   cons: string[];
   priceDisplay?: string;
+  priceObservedAt?: string;
+  priceVerification?: 'verified' | 'user-observed' | 'unknown';
   availabilityNote?: string;
+  availabilityVerification?: 'verified' | 'unknown' | 'out-of-stock';
   affiliateUrl: string;
+  researchNote?: string;
 }
 
 interface QuickPickItem {
@@ -45,6 +53,13 @@ interface TagItem {
   slug: string;
 }
 
+interface RelatedArticleItem {
+  article: CollectionEntry<'articles'>;
+  categoryName: string;
+  categorySlug: string;
+  authorName?: string;
+}
+
 interface Props {
   title: string;
   slug: string;
@@ -55,9 +70,9 @@ interface Props {
   readingTime: number;
   author: {
     name: string;
-    role: string;
-    bio: string;
-    avatar: string;
+    role?: string;
+    bio?: string;
+    avatar?: string;
   };
   category: {
     name: string;
@@ -74,6 +89,7 @@ interface Props {
   products: ProductItem[];
   faq?: FAQItem[];
   affiliateDisclosure?: string;
+  relatedArticles?: RelatedArticleItem[];
 }
 
 const {
@@ -94,6 +110,7 @@ const {
   products = [],
   faq = [],
   affiliateDisclosure,
+  relatedArticles = [],
 } = Astro.props;
 
 const breadcrumbs = buildBreadcrumbs({
@@ -126,108 +143,129 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
     updatedDate: updatedDate?.toISOString(),
     heroImage: heroUrl,
     authorName: author.name,
-    authorRole: author.role,
     url: articleUrl,
+    faq: faq && faq.length > 0 ? faq : undefined,
   }}
 >
-  <div class="container article-container">
-    <Breadcrumbs items={breadcrumbs} />
+  <article class="article-page-wrapper">
+    <div class="container article-container">
+      <Breadcrumbs items={breadcrumbs} />
 
-    <!-- Article Header Area -->
-    <header class="article-header">
-      <div class="category-meta">
-        <a href={`/category/${category.slug}/`} class="category-badge">{category.name}</a>
-        {subcategory && (
-          <a href={`/category/${category.slug}/${subcategory.slug}/`} class="subcategory-badge">{subcategory.name}</a>
-        )}
-      </div>
+      <!-- Article Top Header -->
+      <header class="article-header">
+        <div class="category-pills-row">
+          <a href={`/category/${category.slug}/`} class="category-pill">{category.name}</a>
+          {subcategory && (
+            <a href={`/category/${category.slug}/${subcategory.slug}/`} class="subcategory-pill">{subcategory.name}</a>
+          )}
+        </div>
 
-      <h1 class="article-h1">{title}</h1>
-      <p class="article-lead">{description}</p>
+        <h1 class="article-h1">{title}</h1>
+        <p class="article-lead">{description}</p>
 
-      <!-- Transparency & Author Bar -->
-      <div class="author-transparency-bar">
-        <div class="author-profile">
-          <img src={author.avatar || '/images/brand/placeholder.webp'} alt={author.name} width="44" height="44" class="author-avatar" />
-          <div class="author-info">
-            <span class="author-byline">By <strong>{author.name}</strong> ({author.role})</span>
-            <div class="dates-row">
-              <span>Published: {formatDate(publishedDate)}</span>
-              <span class="dot">•</span>
-              <span class="verified-tag">✓ Verified: {formatDate(lastVerified)}</span>
-              <span class="dot">•</span>
-              <span>{readingTime} min read</span>
+        <!-- Author & Editorial Verification Bar -->
+        <div class="author-transparency-card">
+          <div class="author-info-group">
+            <div class="author-meta-lines">
+              <span class="author-name-role">Written by <strong>{author.name}</strong></span>
+              <div class="article-timestamps">
+                <span>Published: {formatDate(publishedDate)}</span>
+                <span class="meta-dot">•</span>
+                <span class="verified-status">✓ Last Verified: {formatDate(lastVerified)}</span>
+                <span class="meta-dot">•</span>
+                <span>{readingTime} min read</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Affiliate Disclosure Banner -->
-      <div class="article-disclosure-banner">
-        <p>
-          ⚖️ <strong>Affiliate Transparency:</strong> {affiliateDisclosure || SITE_CONFIG.amazonDisclosure}
-          Products featured are independently evaluated based on research, specifications, and comparison criteria.
-        </p>
-      </div>
+        <!-- Affiliate & Point-in-Time Pricing Disclosure -->
+        <div class="editorial-disclosure-banner">
+          <div class="disclosure-icon-col">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <p class="disclosure-body">
+            <strong>Affiliate & Pricing Transparency:</strong> {affiliateDisclosure || SITE_CONFIG.amazonDisclosure}
+            Prices, taxes, and product availability on Amazon India fluctuate frequently. Observed prices in this guide are captured at the verified date.
+          </p>
+        </div>
 
-      <!-- LCP Hero Image -->
-      <div class="article-hero-wrapper">
-        <img
-          src={heroUrl}
-          alt={heroImageAlt || title}
-          width={heroAttrs.width}
-          height={heroAttrs.height}
-          style={heroAttrs.style}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="article-hero-img"
-          onerror="this.onerror=null;this.src='/images/brand/placeholder.webp';"
-        />
-      </div>
-    </header>
+        <!-- Featured LCP Hero Image -->
+        <div class="article-hero-frame">
+          <img
+            src={heroUrl}
+            alt={heroImageAlt || title}
+            width={heroAttrs.width}
+            height={heroAttrs.height}
+            style={heroAttrs.style}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="article-hero-image"
+            onerror={`this.onerror=null;this.src='/images/articles/${slug}-hero.jpg';this.addEventListener('error',()=>this.src='/images/brand/placeholder.svg');`}
+          />
+        </div>
+      </header>
 
-    <!-- Main Article Body -->
-    <div class="article-layout-grid">
-      <div class="article-content-main">
+      <!-- Main Article Content Body (Centered Editorial Width) -->
+      <div class="article-main-body">
         <!-- Quick Picks Summary -->
         {quickPicks && quickPicks.length > 0 && <QuickPicks picks={quickPicks} />}
 
-        <!-- Markdown Content Slot -->
-        <div class="editorial-body">
+        <!-- Markdown Editorial Slot -->
+        <div class="editorial-prose">
           <slot />
         </div>
 
-        <!-- Product Cards Showcase -->
-        <section class="products-showcase-section" id="recommended-products">
-          <h2 class="section-title">Detailed Product Recommendations</h2>
-          {products.map((product) => (
-            <ProductCard {...product} />
-          ))}
-        </section>
+        <!-- Recommended Products Showcase -->
+        {products && products.length > 0 && (
+          <section class="products-section" id="recommended-products" aria-label="Detailed Product Recommendations">
+            <div class="section-title-header">
+              <h2 class="section-heading">Detailed Product Recommendations</h2>
+              <p class="section-subheading">In-depth evaluations, specification summaries, and pros & cons for each option.</p>
+            </div>
+            <div class="products-list-wrapper">
+              {products.map((product) => (
+                <ProductCard {...product} />
+              ))}
+            </div>
+          </section>
+        )}
 
-        <!-- Evaluation Methodology Section -->
-        <section class="methodology-section">
-          <h3 class="methodology-title">How We Selected These Products</h3>
-          <p>
-            Our recommendation methodology is built on independent technical evaluation, specification comparisons, brand warranty support in India, and feedback from real Indian consumers.
+        <!-- Selection Methodology Box -->
+        <section class="methodology-card" aria-label="Our Selection Methodology">
+          <div class="methodology-header">
+            <span class="methodology-icon">🛡️</span>
+            <h3 class="methodology-title">How We Selected These Recommendations</h3>
+          </div>
+          <p class="methodology-text">
+            Our editorial process prioritizes genuine technical specifications, value for Indian shoppers (INR pricing), warranty and service network support in India, and user feedback analysis.
           </p>
-          <ul class="methodology-list">
-            <li><strong>Value for Money:</strong> Prices in INR (₹) are evaluated against overall performance and build quality.</li>
-            <li><strong>Indian Usage Suitability:</strong> Verified for Indian electrical standards, local customer service responsiveness, and tropical climate durability.</li>
-            <li><strong>Transparent Standards:</strong> No product is marked as physically hands-on tested unless explicitly conducted in our studio.</li>
+          <ul class="methodology-bullets">
+            <li><strong>Value for Money:</strong> Observed INR pricing is weighed against build quality, durability, and features.</li>
+            <li><strong>India-Specific Suitability:</strong> Evaluated for local voltage compatibility, climate durability, and authorized brand support.</li>
+            <li><strong>Honest Truth-in-Publishing:</strong> We never claim physical hands-on testing unless conducted in our studio.</li>
           </ul>
         </section>
 
-        <!-- FAQ Accordion Section -->
+        <!-- FAQ Accordion -->
         {faq && faq.length > 0 && (
-          <section class="faq-section">
-            <h3 class="faq-title">Frequently Asked Questions</h3>
-            <div class="faq-list">
+          <section class="faq-section-block" aria-label="Frequently Asked Questions">
+            <h3 class="faq-main-title">Frequently Asked Questions</h3>
+            <div class="faq-accordion-group">
               {faq.map((item) => (
-                <details class="faq-item">
-                  <summary class="faq-question">{item.question}</summary>
-                  <div class="faq-answer">
+                <details class="faq-accordion-item">
+                  <summary class="faq-summary-row">
+                    <span class="faq-question-text">{item.question}</span>
+                    <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </summary>
+                  <div class="faq-answer-content">
                     <p>{item.answer}</p>
                   </div>
                 </details>
@@ -236,217 +274,401 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
           </section>
         )}
 
-        <!-- Author Profile Box -->
-        <div class="author-bio-box">
-          <img src={author.avatar || '/images/brand/placeholder.webp'} alt={author.name} width="64" height="64" class="bio-avatar" />
-          <div class="bio-text">
-            <h4 class="bio-name">About {author.name}</h4>
-            <p className="bio-desc">{author.bio}</p>
-          </div>
-        </div>
-
-        <!-- Article Controlled Tags Footer -->
+        <!-- Article Controlled Tags -->
         <ArticleTags tags={tags} />
       </div>
+
+      <!-- Related Articles Section -->
+      {relatedArticles && relatedArticles.length > 0 && (
+        <section class="related-articles-section" aria-label="Related Buying Guides">
+          <div class="section-title-header">
+            <h2 class="section-heading">More Guides You Might Like</h2>
+            <p class="section-subheading">Handpicked editorial recommendations from the {category.name} department</p>
+          </div>
+          <div class="related-grid">
+            {relatedArticles.map(({ article, categoryName, categorySlug, authorName }) => (
+              <ArticleCard
+                title={article.data.title}
+                slug={article.slug}
+                description={article.data.description}
+                categoryName={categoryName}
+                categorySlug={categorySlug}
+                heroImage={article.data.heroImage}
+                heroImageAlt={article.data.heroImageAlt}
+                publishedDate={article.data.publishedDate}
+                readingTime={article.data.readingTime}
+                authorName={authorName}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
-  </div>
+  </article>
 </BaseLayout>
 
 <style>
+  .article-page-wrapper {
+    padding: 1.5rem 0 4rem;
+  }
+
   .article-container {
-    padding-top: 1rem;
+    max-width: 960px;
   }
+
+  /* Header */
   .article-header {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
   }
-  .category-meta {
+  .category-pills-row {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
   }
-  .category-badge {
+  .category-pill {
     font-size: 0.75rem;
     font-weight: 800;
     color: var(--color-primary);
     background-color: var(--color-primary-light);
-    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--color-primary-border);
+    padding: 0.25rem 0.75rem;
     border-radius: var(--radius-full);
     text-transform: uppercase;
     text-decoration: none;
+    letter-spacing: 0.04em;
   }
-  .subcategory-badge {
+  .subcategory-pill {
     font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-slate-700);
     background-color: var(--color-slate-100);
-    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--color-slate-200);
+    padding: 0.25rem 0.75rem;
     border-radius: var(--radius-full);
     text-decoration: none;
   }
 
   .article-h1 {
-    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-    margin-bottom: 0.85rem;
+    font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    color: var(--color-slate-950);
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    margin: 0 0 1rem 0;
   }
   .article-lead {
     font-size: 1.15rem;
     color: var(--color-slate-600);
-    line-height: 1.5;
-    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
   }
 
-  .author-transparency-bar {
+  /* Author Transparency Card */
+  .author-transparency-card {
     background-color: var(--color-white);
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-md);
     padding: 0.85rem 1.25rem;
     margin-bottom: 1.25rem;
+    box-shadow: var(--shadow-subtle);
   }
-  .author-profile {
+  .author-info-group {
     display: flex;
     align-items: center;
     gap: 0.85rem;
   }
   .author-avatar {
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-full);
     object-fit: cover;
+    background-color: var(--color-slate-100);
+    flex-shrink: 0;
   }
-  .author-info {
-    font-size: 0.85rem;
-  }
-  .author-byline {
+  .author-name-role {
+    font-size: 0.88rem;
     color: var(--color-slate-800);
     display: block;
     margin-bottom: 0.15rem;
   }
-  .dates-row {
+  .author-role-tag {
     color: var(--color-slate-500);
-    font-size: 0.785rem;
+    font-weight: 500;
+  }
+  .article-timestamps {
+    font-size: 0.78rem;
+    color: var(--color-slate-500);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.35rem;
   }
-  .verified-tag {
+  .meta-dot {
+    color: var(--color-slate-300);
+  }
+  .verified-status {
     color: var(--color-success);
-    font-weight: 600;
+    font-weight: 700;
   }
 
-  .article-disclosure-banner {
-    background-color: var(--color-slate-100);
-    border-left: 3px solid var(--color-slate-400);
-    padding: 0.75rem 1rem;
-    font-size: 0.8rem;
-    color: var(--color-slate-600);
+  /* Disclosure Banner */
+  .editorial-disclosure-banner {
+    background-color: #f8fafc;
+    border: 1px solid var(--color-slate-200);
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1.15rem;
     margin-bottom: 1.5rem;
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
   }
-  .article-disclosure-banner p { margin: 0; }
+  .disclosure-icon-col {
+    color: var(--color-primary);
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+  .disclosure-body {
+    font-size: 0.82rem;
+    color: var(--color-slate-600);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .disclosure-body strong {
+    color: var(--color-slate-800);
+  }
 
-  .article-hero-wrapper {
+  /* Hero Image Frame */
+  .article-hero-frame {
+    border-radius: var(--radius-xl);
     overflow: hidden;
-    border-radius: var(--radius-lg);
-    background-color: var(--color-slate-200);
+    background-color: var(--color-slate-100);
     box-shadow: var(--shadow-sm);
   }
-  .article-hero-img {
+  .article-hero-image {
     width: 100%;
+    height: auto;
     object-fit: cover;
+    display: block;
   }
 
-  .editorial-body {
+  /* Main Editorial Content */
+  .article-main-body {
+    margin-top: 2rem;
+  }
+
+  .editorial-prose {
     font-size: 1.05rem;
-    line-height: 1.7;
+    line-height: 1.75;
     color: var(--color-slate-800);
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
   }
-  .editorial-body h2 {
-    font-size: 1.6rem;
-    margin-top: 2.25rem;
+  .editorial-prose :global(h2) {
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    font-weight: 800;
+    color: var(--color-slate-900);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  .editorial-prose :global(h3) {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .editorial-prose :global(p) {
+    margin-bottom: 1.25rem;
+  }
+  .editorial-prose :global(ul), .editorial-prose :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .editorial-prose :global(li) {
+    margin-bottom: 0.5rem;
+  }
+  .editorial-prose :global(blockquote) {
+    border-left: 4px solid var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 1rem 1.25rem;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin: 1.5rem 0;
+    color: var(--color-slate-800);
+    font-style: italic;
   }
 
-  .section-title {
-    font-size: 1.6rem;
+  /* Section Title Bars */
+  .section-title-header {
     margin-bottom: 1.5rem;
   }
+  .section-heading {
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+    color: var(--color-slate-900);
+    letter-spacing: -0.02em;
+    margin: 0 0 0.35rem 0;
+  }
+  .section-subheading {
+    font-size: 0.9rem;
+    color: var(--color-slate-500);
+    margin: 0;
+  }
 
-  .methodology-section {
-    background-color: var(--color-primary-light);
+  /* Methodology Card */
+  .methodology-card {
+    background: linear-gradient(135deg, #faf8ff 0%, #f5f3ff 100%);
     border: 1px solid var(--color-primary-border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
+    border-radius: var(--radius-xl);
+    padding: 1.75rem;
     margin: 3rem 0;
+    box-shadow: var(--shadow-subtle);
+  }
+  .methodology-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+  }
+  .methodology-icon {
+    font-size: 1.25rem;
   }
   .methodology-title {
     font-size: 1.2rem;
-    color: var(--color-primary);
-    margin-top: 0;
-    margin-bottom: 0.75rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+    margin: 0;
   }
-  .methodology-list {
-    margin-left: 1.25rem;
-    font-size: 0.9rem;
+  .methodology-text {
+    font-size: 0.92rem;
+    color: var(--color-slate-700);
+    line-height: 1.6;
+    margin: 0 0 1rem 0;
+  }
+  .methodology-bullets {
+    padding-left: 1.25rem;
+    margin: 0;
+    font-size: 0.88rem;
     color: var(--color-slate-700);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
+  .methodology-bullets strong {
+    color: var(--color-slate-900);
+  }
 
-  .faq-section {
-    margin: 3rem 0;
+  /* FAQ Accordion */
+  .faq-section-block {
+    margin: 3.5rem 0;
   }
-  .faq-title {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
+  .faq-main-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.015em;
   }
-  .faq-list {
+  .faq-accordion-group {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.85rem;
   }
-  .faq-item {
-    background-color: var(--color-white);
-    border: 1px solid var(--color-slate-200);
-    border-radius: var(--radius-md);
-    padding: 0.85rem 1.25rem;
-  }
-  .faq-question {
-    font-weight: 700;
-    color: var(--color-slate-900);
-    cursor: pointer;
-  }
-  .faq-answer {
-    padding-top: 0.75rem;
-    font-size: 0.925rem;
-    color: var(--color-slate-700);
-  }
-
-  .author-bio-box {
-    display: flex;
-    gap: 1.25rem;
+  .faq-accordion-item {
     background-color: var(--color-white);
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
-    margin: 2.5rem 0;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow-subtle);
+    transition: border-color 0.15s ease;
   }
-  .bio-avatar {
-    border-radius: var(--radius-full);
-    object-fit: cover;
+  .faq-accordion-item[open] {
+    border-color: var(--color-primary-border);
   }
-  .bio-name {
-    font-size: 1.05rem;
-    margin-top: 0;
-    margin-bottom: 0.35rem;
+  .faq-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-slate-900);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    gap: 1rem;
   }
-  .bio-desc {
-    font-size: 0.875rem;
-    color: var(--color-slate-600);
-    margin-bottom: 0;
+  .faq-summary-row::-webkit-details-marker {
+    display: none;
+  }
+  .faq-chevron {
+    color: var(--color-primary);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .faq-accordion-item[open] .faq-chevron {
+    transform: rotate(180deg);
+  }
+  .faq-answer-content {
+    padding-top: 0.85rem;
+    font-size: 0.92rem;
+    color: var(--color-slate-700);
+    line-height: 1.6;
+    border-top: 1px solid var(--color-slate-100);
+    margin-top: 0.75rem;
+  }
+  .faq-answer-content p {
+    margin: 0;
   }
 
-  @media (max-width: 768px) {
-    .author-transparency-bar { padding: 0.75rem; }
-    .dates-row { font-size: 0.75rem; }
+  /* Author Bio */
+  .author-bio-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    margin: 3rem 0;
+    box-shadow: var(--shadow-subtle);
+  }
+  .bio-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .bio-author-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+    margin: 0 0 0.35rem 0;
+  }
+  .bio-author-desc {
+    font-size: 0.88rem;
+    color: var(--color-slate-600);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Related Articles Section */
+  .related-articles-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--color-slate-200);
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .author-bio-card {
+      flex-direction: column;
+      text-align: center;
+    }
   }
 </style>
+

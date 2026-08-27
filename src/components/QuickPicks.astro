@@ -13,114 +13,186 @@ interface Props {
   picks: QuickPickItem[];
 }
 
-const { picks } = Astro.props;
+const { picks = [] } = Astro.props;
 ---
 
-<div class="quick-picks-container">
-  <div class="quick-picks-header">
-    <div class="header-title-group">
-      <span class="icon">⚡</span>
-      <h3 class="quick-picks-title">Quick Picks: Top Recommendations at a Glance</h3>
+{picks.length > 0 && (
+  <section class="quick-picks-section" aria-label="Quick Recommendations Summary">
+    <div class="quick-picks-header">
+      <div class="header-icon-title">
+        <span class="quick-icon" aria-hidden="true">⚡</span>
+        <h2 class="quick-title">Quick Picks: Top Recommendations</h2>
+      </div>
+      <span class="quick-subtitle">Short on time? Here is our curated top list at a glance.</span>
     </div>
-    <span class="quick-picks-note">Short on time? Here are our top-rated picks for different needs.</span>
-  </div>
 
-  <div class="quick-picks-grid">
-    {picks.map((pick, index) => {
-      const finalUrl = buildAmazonAffiliateUrl(pick.affiliateUrl || pick.asin || '');
-      return (
-        <div class="quick-pick-card">
-          <span class="pick-badge">{pick.badge}</span>
-          <h4 class="pick-name">{pick.name}</h4>
-          {pick.priceDisplay && <span class="pick-price">{pick.priceDisplay}</span>}
-          <a
-            href={finalUrl}
-            rel={AFFILIATE_LINK_ATTRIBUTES.rel}
-            target={AFFILIATE_LINK_ATTRIBUTES.target}
-            class="pick-link"
-          >
-            Check Price →
-          </a>
-        </div>
-      );
-    })}
-  </div>
-</div>
+    <div class="quick-picks-grid">
+      {picks.map((pick, idx: number) => {
+        const finalUrl = buildAmazonAffiliateUrl(pick.affiliateUrl || pick.asin || '');
+        const targetAnchor = `#product-${idx + 1}`;
+        return (
+          <div class="quick-pick-card">
+            <span class="pick-badge">{pick.badge}</span>
+            <h3 class="pick-name">
+              <a href={targetAnchor} class="pick-jump-link">
+                {pick.name}
+              </a>
+            </h3>
+            {pick.priceDisplay && (
+              <div class="pick-price-row">
+                <span class="pick-price-val">{pick.priceDisplay}</span>
+              </div>
+            )}
+            <div class="pick-action-row">
+              <a href={targetAnchor} class="jump-text-btn">
+                <span>View Details</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+              </a>
+              <a
+                href={finalUrl}
+                rel={AFFILIATE_LINK_ATTRIBUTES.rel}
+                target={AFFILIATE_LINK_ATTRIBUTES.target}
+                class="pick-amazon-link"
+                aria-label={`Check price for ${pick.name} on Amazon`}
+              >
+                <span>Amazon ↗</span>
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+)}
 
 <style>
-  .quick-picks-container {
-    background-color: var(--color-white);
-    border: 2px solid var(--color-primary-border);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
+  .quick-picks-section {
+    background: linear-gradient(135deg, #faf8ff 0%, #f5f3ff 100%);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem 1.75rem;
     margin: 1.5rem 0 2.5rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-subtle);
   }
+
   .quick-picks-header {
     margin-bottom: 1.25rem;
   }
-  .header-title-group {
+  .header-icon-title {
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
-  .header-title-group .icon {
-    font-size: 1.25rem;
+  .quick-icon {
+    font-size: 1.2rem;
   }
-  .quick-picks-title {
-    font-size: 1.15rem;
-    margin: 0;
+  .quick-title {
+    font-size: clamp(1.15rem, 2vw, 1.35rem);
+    font-weight: 800;
     color: var(--color-slate-900);
+    margin: 0;
+    letter-spacing: -0.015em;
   }
-  .quick-picks-note {
-    font-size: 0.85rem;
-    color: var(--color-slate-500);
+  .quick-subtitle {
+    font-size: 0.86rem;
+    color: var(--color-slate-600);
     display: block;
     margin-top: 0.25rem;
   }
 
   .quick-picks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
   }
+
   .quick-pick-card {
-    background-color: var(--color-primary-light);
-    border: 1px solid var(--color-primary-border);
-    border-radius: var(--radius-md);
-    padding: 1rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.15s ease, border-color 0.15s ease;
   }
+  .quick-pick-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-border);
+  }
+
   .pick-badge {
-    font-size: 0.7rem;
+    align-self: flex-start;
+    font-size: 0.68rem;
     font-weight: 800;
     color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.4rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 0.5rem;
   }
+
   .pick-name {
-    font-size: 0.95rem;
+    font-size: 0.96rem;
     font-weight: 700;
-    color: var(--color-slate-900);
+    line-height: 1.35;
     margin: 0 0 0.5rem 0;
-    line-height: 1.3;
     flex: 1;
   }
-  .pick-price {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--color-slate-700);
+  .pick-jump-link {
+    color: var(--color-slate-900);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .pick-jump-link:hover {
+    color: var(--color-primary);
+  }
+
+  .pick-price-row {
     margin-bottom: 0.75rem;
   }
-  .pick-link {
-    font-size: 0.85rem;
+  .pick-price-val {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+  }
+
+  .pick-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-slate-100);
+    gap: 0.5rem;
+  }
+  .jump-text-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--color-primary);
     text-decoration: none;
   }
-  .pick-link:hover {
+  .jump-text-btn:hover {
+    color: var(--color-primary-hover);
+  }
+  .pick-amazon-link {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-deal);
+    text-decoration: none;
+  }
+  .pick-amazon-link:hover {
     text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .quick-picks-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

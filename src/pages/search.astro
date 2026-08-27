@@ -1,13 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
-const articles = await getCollection('articles', ({ data }) => !data.draft);
-const categories = await getCollection('categories');
-const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
+const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
+const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
+const categoryMap = new Map<string, CollectionEntry<'categories'>['data']>(
+  categories.map((c: CollectionEntry<'categories'>) => [c.id, c.data])
+);
 
-const searchIndex = articles.map((article) => {
+const searchIndex = articles.map((article: CollectionEntry<'articles'>) => {
   const cat = categoryMap.get(article.data.category.id);
   return {
     title: article.data.title,
@@ -34,28 +36,50 @@ const breadcrumbs = [
   <div class="container search-page-container">
     <Breadcrumbs items={breadcrumbs} />
 
-    <header class="search-header">
-      <h1 class="search-h1">Search DesiOffers Guides</h1>
+    <!-- Search Hero Card -->
+    <header class="search-header-card">
+      <div class="header-badge-row">
+        <span class="search-eyebrow">SEARCH GUIDES</span>
+      </div>
+      <h1 class="search-h1">Find Product Recommendations</h1>
+      <p class="search-desc">Search through our buying guides, top picks, and curated comparisons for Indian shoppers.</p>
+
       <div class="search-input-wrapper">
-        <input
-          type="search"
-          id="search-input"
-          placeholder="Search by product, category, keyboard, earbuds, or topic..."
-          class="search-input-field"
-          autofocus
-        />
         <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search by product, category, keyboard, earbuds, air fryer..."
+          class="search-input-field"
+          aria-label="Search buying guides"
+          autofocus
+        />
       </div>
     </header>
 
+    <!-- Search Status Message -->
     <div id="search-results-info" class="search-results-info">
       Type a query above to explore our buying guides.
     </div>
 
+    <!-- Live Results Grid -->
     <div id="search-results-grid" class="search-results-grid"></div>
+
+    <!-- Suggested Departments Quick Links (Shown by default or when empty) -->
+    <div id="search-suggestions" class="search-suggestions-box">
+      <h3 class="suggestions-heading">Browse Popular Departments</h3>
+      <div class="suggestions-pills">
+        <a href="/category/gaming/" class="suggest-pill">🎮 Gaming Gear</a>
+        <a href="/category/electronics-audio/" class="suggest-pill">🎧 Audio & Tech</a>
+        <a href="/category/kitchen-appliances/" class="suggest-pill">🍳 Kitchen Appliances</a>
+        <a href="/category/beauty-makeup/" class="suggest-pill">💄 Beauty & Care</a>
+        <a href="/category/home-living/" class="suggest-pill">🏠 Home & Living</a>
+        <a href="/deals/" class="suggest-pill highlight">🔥 Curated Deals</a>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
@@ -63,11 +87,13 @@ const breadcrumbs = [
   const input = document.getElementById('search-input');
   const resultsGrid = document.getElementById('search-results-grid');
   const infoText = document.getElementById('search-results-info');
+  const suggestionsBox = document.getElementById('search-suggestions');
 
   function renderResults(query) {
     if (!query || query.trim() === '') {
-      infoText.textContent = 'Type a query above to explore our buying guides.';
+      infoText.innerHTML = '<span class="info-muted">Type a query above to explore our buying guides.</span>';
       resultsGrid.innerHTML = '';
+      if (suggestionsBox) suggestionsBox.style.display = 'block';
       return;
     }
 
@@ -79,18 +105,21 @@ const breadcrumbs = [
     );
 
     if (filtered.length === 0) {
-      infoText.textContent = `No guides found matching "${query}". Try searching for "keyboard", "earbuds", "kitchen", or "beauty".`;
+      infoText.innerHTML = `<span class="info-no-results">No guides found matching <strong>"${query}"</strong>. Try another search or explore popular departments below:</span>`;
       resultsGrid.innerHTML = '';
+      if (suggestionsBox) suggestionsBox.style.display = 'block';
       return;
     }
 
-    infoText.textContent = `Found ${filtered.length} guide${filtered.length > 1 ? 's' : ''} matching "${query}":`;
+    if (suggestionsBox) suggestionsBox.style.display = 'none';
+    infoText.innerHTML = `<span class="info-found">Found <strong>${filtered.length}</strong> curated guide${filtered.length > 1 ? 's' : ''} matching <strong>"${query}"</strong>:</span>`;
     resultsGrid.innerHTML = filtered.map(item => `
-      <article class="search-result-card">
-        <div class="res-body">
-          <span class="res-cat">${item.categoryName}</span>
-          <h3 class="res-title"><a href="/${item.slug}/">${item.title}</a></h3>
-          <p class="res-desc">${item.description}</p>
+      <article class="smart-search-card">
+        <div class="search-card-body">
+          <span class="search-cat-pill">${item.categoryName}</span>
+          <h3 class="search-title"><a href="/${item.slug}/">${item.title}</a></h3>
+          <p class="search-desc">${item.description}</p>
+          <a href="/${item.slug}/" class="search-read-link">Read Guide →</a>
         </div>
       </article>
     `).join('');
@@ -112,46 +141,207 @@ const breadcrumbs = [
 <style>
   .search-page-container {
     padding-top: 1rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
+    max-width: 900px;
   }
-  .search-header {
+
+  /* Search Hero Card */
+  .search-header-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-primary-light) 100%);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem 2.5rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-subtle);
+  }
+  .header-badge-row {
+    margin-bottom: 0.75rem;
+  }
+  .search-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
   .search-h1 {
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
+    font-size: clamp(2rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    color: var(--color-slate-900);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.5rem;
+    line-height: 1.15;
   }
+  .search-desc {
+    font-size: 1.05rem;
+    color: var(--color-slate-600);
+    line-height: 1.55;
+    margin-bottom: 1.5rem;
+  }
+
   .search-input-wrapper {
     position: relative;
-    max-width: 700px;
+    max-width: 100%;
   }
   .search-input-field {
     width: 100%;
-    padding: 1rem 1rem 1rem 3rem;
-    font-size: 1.1rem;
-    border: 2px solid var(--color-slate-300);
-    border-radius: var(--radius-md);
+    padding: 0.95rem 1.25rem 0.95rem 3.25rem;
+    font-size: 1.05rem;
+    color: var(--color-slate-900);
+    background-color: var(--color-white);
+    border: 2px solid var(--color-primary-border);
+    border-radius: var(--radius-lg);
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-subtle);
   }
   .search-input-field:focus {
     border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
   }
   .search-icon {
     position: absolute;
-    left: 1rem;
+    left: 1.15rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--color-slate-400);
+    color: var(--color-primary);
+    pointer-events: none;
   }
+
+  /* Info / Status */
   .search-results-info {
     font-size: 0.95rem;
     color: var(--color-slate-600);
     margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
   }
+  .info-no-results {
+    color: var(--color-slate-700);
+  }
+  .info-found {
+    color: var(--color-slate-800);
+  }
+
+  /* Results Grid */
   .search-results-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  /* Result Card */
+  .smart-search-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .smart-search-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary-border);
+  }
+  .search-card-body {
+    display: flex;
+    flex-direction: column;
+  }
+  .search-cat-pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.5rem;
+  }
+  .search-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-bottom: 0.4rem;
+    line-height: 1.35;
+  }
+  .search-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .search-title a:hover {
+    color: var(--color-primary);
+  }
+  .search-desc {
+    font-size: 0.92rem;
+    color: var(--color-slate-600);
+    line-height: 1.55;
+    margin-bottom: 0.85rem;
+  }
+  .search-read-link {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .search-read-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Suggestions */
+  .search-suggestions-box {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-subtle);
+  }
+  .suggestions-heading {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-bottom: 1rem;
+  }
+  .suggestions-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+  .suggest-pill {
+    background-color: var(--color-slate-50);
+    color: var(--color-slate-700);
+    border: 1px solid var(--color-slate-200);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-full);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .suggest-pill:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-color: var(--color-primary-border);
+  }
+  .suggest-pill.highlight {
+    background-color: #fff7ed;
+    color: #ea580c;
+    border-color: #fed7aa;
+  }
+  .suggest-pill.highlight:hover {
+    background-color: #ffedd5;
+  }
+
+  @media (max-width: 640px) {
+    .search-header-card {
+      padding: 1.5rem;
+    }
   }
 </style>

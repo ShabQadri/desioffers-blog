@@ -1,0 +1,42 @@
+{
+  "topic": "5 Best Budget Wireless Gaming Mice Under ₹3,000 in India (2026)",
+  "slug": "best-budget-wireless-gaming-mice-2026",
+  "allowOverwrite": true,
+  "category": "gaming",
+  "subcategory": "gaming-mice",
+  "tags": ["budget", "under-3000", "wireless"],
+  "articleType": "buying-guide",
+  "author": "shaaz",
+  "notes": "Focus on 2.4GHz wireless latency, optical sensor accuracy, and weight balance.",
+  "products": [
+    {
+      "url": "https://www.amazon.in/dp/B07CGP569X",
+      "price": "₹2,799",
+      "badge": "Top Pick",
+      "ranking": 1,
+      "name": "Logitech G304 Lightspeed Wireless Gaming Mouse",
+      "brand": "Logitech"
+    },
+    {
+      "url": "https://www.amazon.in/dp/B0942VWD2Z",
+      "price": "₹1,499",
+      "badge": "Best Value",
+      "ranking": 2,
+      "name": "Razer DeathAdder Essential Ergonomic Gaming Mouse",
+      "brand": "Razer"
+    },
+    {
+      "url": "https://www.amazon.in/dp/B08NSJFNSS",
+      "badge": "Ultra Lightweight",
+      "ranking": 3,
+      "name": "HyperX Pulsefire Haste Ultra Lightweight Mouse",
+      "brand": "HyperX"
+    },
+    {
+      "url": "https://www.amazon.in/dp/B0964D3N5H",
+      "ranking": 4,
+      "name": "Cosmic Byte Hydra Wireless RGB Gaming Mouse",
+      "brand": "Cosmic Byte"
+    }
+  ]
+}

@@ -8,10 +8,11 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      filter: (page) => 
-        !page.includes('/admin/') && 
-        !page.includes('/search/') && 
-        !page.includes('/drafts/'),
+      filter: (page) =>
+        !page.includes('/admin/') &&
+        !page.includes('/search/') &&
+        !page.includes('/drafts/') &&
+        !page.includes('/tag/'),
     }),
   ],
   build: {

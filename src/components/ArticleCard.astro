@@ -14,6 +14,7 @@ interface Props {
   readingTime: number;
   authorName?: string;
   featured?: boolean;
+  layout?: 'vertical' | 'horizontal';
 }
 
 const {
@@ -28,24 +29,25 @@ const {
   readingTime,
   authorName = 'Editorial Team',
   featured = false,
+  layout = 'vertical',
 } = Astro.props;
 
+const isHorizontal = layout === 'horizontal';
 const imageUrl = getImageUrl(heroImage, featured ? 'medium' : 'card');
 const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
 ---
 
-<article class={`article-card ${featured ? 'featured' : ''}`}>
-  <a href={`/${slug}/`} class="card-image-link" tab-index="-1">
+<article class={`article-card ${featured ? 'featured' : ''} ${isHorizontal ? 'horizontal' : ''}`}>
+  <a href={`/${slug}/`} class="card-image-link" tab-index="-1" aria-label={`Read ${title}`}>
     <img
       src={imageUrl}
       alt={heroImageAlt || title}
       width={imgAttrs.width}
       height={imgAttrs.height}
-      style={imgAttrs.style}
       loading="lazy"
       decoding="async"
       class="card-img"
-      onerror="this.onerror=null;this.src='/images/brand/placeholder.webp';"
+      onerror={`this.onerror=null;this.src='/images/articles/${slug}-hero.jpg';this.addEventListener('error',()=>this.src='/images/brand/placeholder.svg');`}
     />
   </a>
 
@@ -62,8 +64,15 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     <p class="card-excerpt">{description}</p>
 
     <div class="card-footer">
-      <span class="author-name">By {authorName}</span>
-      <span class="publish-date">{formatDate(publishedDate)}</span>
+      <div class="footer-left">
+        <span class="author-name">By {authorName}</span>
+        <span class="dot">•</span>
+        <span class="publish-date">{formatDate(publishedDate)}</span>
+      </div>
+      <a href={`/${slug}/`} class="read-more-link" aria-label={`Read guide: ${title}`}>
+        <span>Read Guide</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
     </div>
   </div>
 </article>
@@ -76,7 +85,7 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-subtle);
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
   .article-card:hover {
@@ -92,6 +101,7 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
   }
   .card-img {
     width: 100%;
+    height: 200px;
     object-fit: cover;
     transition: transform 0.3s ease;
   }
@@ -100,7 +110,7 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
   }
 
   .card-body {
-    padding: 1.25rem;
+    padding: 1.25rem 1.4rem;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -110,60 +120,121 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.65rem;
   }
   .category-pill {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: var(--color-primary);
     background-color: var(--color-primary-light);
-    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.6rem;
     border-radius: var(--radius-full);
     text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    transition: all 0.15s ease;
   }
+  .category-pill:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+
   .reading-time {
-    font-size: 0.75rem;
+    font-size: 0.76rem;
     color: var(--color-slate-500);
   }
 
   .card-title {
-    font-size: 1.15rem;
+    font-size: 1.12rem;
     line-height: 1.35;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.015em;
   }
   .card-title a {
     color: var(--color-slate-900);
     text-decoration: none;
+    transition: color 0.15s ease;
   }
   .card-title a:hover {
     color: var(--color-primary);
   }
 
   .card-excerpt {
-    font-size: 0.875rem;
+    font-size: 0.88rem;
     color: var(--color-slate-600);
-    line-height: 1.5;
+    line-height: 1.55;
     margin-bottom: 1.25rem;
     flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.775rem;
+    font-size: 0.78rem;
     color: var(--color-slate-500);
     padding-top: 0.75rem;
-    border-top: 1px solid var(--color-slate-100);
+    border-top: 1px solid var(--color-slate-150);
   }
-  .author-name { font-weight: 600; }
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .author-name {
+    font-weight: 600;
+    color: var(--color-slate-700);
+  }
+  .dot {
+    color: var(--color-slate-400);
+  }
+  .read-more-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: gap 0.15s ease;
+  }
+  .read-more-link:hover {
+    gap: 0.4rem;
+    color: var(--color-primary-hover);
+  }
+
+  /* Horizontal Layout Variant */
+  .article-card.horizontal {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+  }
+  .article-card.horizontal .card-image-link {
+    height: 100%;
+  }
+  .article-card.horizontal .card-img {
+    height: 100%;
+    min-height: 190px;
+  }
 
   .article-card.featured {
     grid-column: span 2;
   }
+
   @media (max-width: 768px) {
-    .article-card.featured { grid-column: span 1; }
+    .article-card.horizontal {
+      grid-template-columns: 1fr;
+    }
+    .article-card.horizontal .card-img {
+      height: 190px;
+    }
+    .article-card.featured {
+      grid-column: span 1;
+    }
   }
 </style>
+

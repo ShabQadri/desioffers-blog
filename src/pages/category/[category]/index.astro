@@ -2,34 +2,43 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ArticleCard from '../../../components/ArticleCard.astro';
 import Breadcrumbs from '../../../components/Breadcrumbs.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { buildBreadcrumbs } from '../../../utils/taxonomy';
 
 export async function getStaticPaths() {
-  const categories = await getCollection('categories');
-  const articles = await getCollection('articles', ({ data }) => !data.draft);
-  const subcategories = await getCollection('subcategories');
-  const authors = await getCollection('authors');
+  const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
+  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
+  const subcategories: CollectionEntry<'subcategories'>[] = await getCollection('subcategories');
+  const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
 
-  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+  const authorMap = new Map<string, CollectionEntry<'authors'>['data']>(
+    authors.map((a: CollectionEntry<'authors'>) => [a.id, a.data])
+  );
 
-  return categories.map((category) => {
+  return categories.map((category: CollectionEntry<'categories'>) => {
     const categoryArticles = articles
-      .filter((a) => a.data.category.id === category.id)
-      .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+      .filter((a: CollectionEntry<'articles'>) => a.data.category.id === category.id)
+      .sort((a: CollectionEntry<'articles'>, b: CollectionEntry<'articles'>) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
 
-    const categorySubcategories = subcategories.filter((sc) => sc.data.category.id === category.id);
+    const categorySubcategories = subcategories.filter((sc: CollectionEntry<'subcategories'>) => sc.data.category.id === category.id);
 
     return {
       params: { category: category.data.slug },
       props: {
         category: category.data,
         categoryArticles,
-        categorySubcategories: categorySubcategories.map((sc) => sc.data),
+        categorySubcategories: categorySubcategories.map((sc: CollectionEntry<'subcategories'>) => sc.data),
         authorMap,
       },
     };
   });
+}
+
+interface Props {
+  category: CollectionEntry<'categories'>['data'];
+  categoryArticles: CollectionEntry<'articles'>[];
+  categorySubcategories: CollectionEntry<'subcategories'>['data'][];
+  authorMap: Map<string, CollectionEntry<'authors'>['data']>;
 }
 
 const { category, categoryArticles, categorySubcategories, authorMap } = Astro.props;
@@ -48,117 +57,335 @@ const breadcrumbs = buildBreadcrumbs({
   <div class="container category-page-container">
     <Breadcrumbs items={breadcrumbs} />
 
-    <header class="category-header">
-      <h1 class="category-h1">{category.name} Buying Guides</h1>
+    <!-- Compact Department Hero Header -->
+    <header class="category-header-card">
+      <div class="header-badge-row">
+        <span class="category-eyebrow">DEPARTMENT GUIDE</span>
+        <span class="guide-count-badge">{categoryArticles.length} Curated {categoryArticles.length === 1 ? 'Guide' : 'Guides'}</span>
+      </div>
+      <h1 class="category-h1">{category.name}</h1>
       <p class="category-desc">{category.description}</p>
     </header>
 
-    <!-- Subcategories Filter Pills -->
+    <!-- Subcategories Filter Navigation -->
     {categorySubcategories.length > 0 && (
-      <div class="subcategories-filter-bar">
+      <nav class="subcategories-filter-bar" aria-label="Department Subcategories">
         <span class="sub-label">Subcategories:</span>
         <div class="sub-pills">
+          <span class="sub-pill active">All {category.name}</span>
           {categorySubcategories.map((sub) => (
             <a href={`/category/${category.slug}/${sub.slug}/`} class="sub-pill">{sub.name}</a>
           ))}
         </div>
-      </div>
+      </nav>
     )}
 
-    <!-- Category Articles Feed -->
-    {categoryArticles.length > 0 ? (
-      <div class="category-articles-grid">
-        {categoryArticles.map((article) => {
-          const auth = authorMap.get(article.data.author.id);
-          return (
-            <ArticleCard
-              title={article.data.title}
-              slug={article.slug}
-              description={article.data.description}
-              categoryName={category.name}
-              categorySlug={category.slug}
-              heroImage={article.data.heroImage}
-              heroImageAlt={article.data.heroImageAlt}
-              publishedDate={article.data.publishedDate}
-              readingTime={article.data.readingTime}
-              authorName={auth?.name}
-            />
-          );
-        })}
-      </div>
-    ) : (
-      <div class="empty-category-box">
-        <p>No guides published in this category yet. Check back soon!</p>
-      </div>
-    )}
+    <!-- 2-Column Layout (2/3 Articles + 1/3 Sidebar) -->
+    <div class="category-layout-grid">
+      <!-- Main Content Feed -->
+      <main class="category-feed-column">
+        {categoryArticles.length > 0 ? (
+          <div class="category-articles-grid">
+            {categoryArticles.map((article, idx) => {
+              const auth = authorMap.get(article.data.author.id);
+              return (
+                <ArticleCard
+                  title={article.data.title}
+                  slug={article.slug}
+                  description={article.data.description}
+                  categoryName={category.name}
+                  categorySlug={category.slug}
+                  heroImage={article.data.heroImage}
+                  heroImageAlt={article.data.heroImageAlt}
+                  publishedDate={article.data.publishedDate}
+                  readingTime={article.data.readingTime}
+                  authorName={auth?.name}
+                  featured={idx === 0}
+                  layout={idx === 0 ? 'horizontal' : 'vertical'}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div class="empty-category-box">
+            <span class="empty-icon">📖</span>
+            <h3>No Guides Published Yet</h3>
+            <p>We are actively researching and writing recommendations for {category.name}. Check back soon!</p>
+            <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Explore All Departments</a>
+          </div>
+        )}
+      </main>
+
+      <!-- Sidebar Column -->
+      <aside class="category-sidebar-column">
+        <!-- About Department Card -->
+        <div class="sidebar-card">
+          <h3 class="sidebar-heading">About {category.name}</h3>
+          <p class="sidebar-text">
+            SmartFinds research in {category.name} is tailored specifically for Indian shoppers, emphasizing genuine INR pricing, manufacturer warranties, and practical performance.
+          </p>
+          <div class="trust-badge-row">
+            <span class="trust-badge">✓ Zero Sponsored Ranks</span>
+            <span class="trust-badge">✓ Amazon Verified</span>
+          </div>
+        </div>
+
+        <!-- Join Community Channels -->
+        <div class="sidebar-card highlight-card">
+          <h3 class="sidebar-heading">Join SmartFinds Community</h3>
+          <p class="sidebar-text">
+            Get instant alerts on price drops, lightning deals, and new buying guides directly in your feed.
+          </p>
+          <div class="channel-buttons">
+            <a href="https://t.me/desioffers" target="_blank" rel="noopener" class="btn-channel telegram">
+              <span>✈️ Telegram Alerts</span>
+            </a>
+            <a href="https://whatsapp.com/channel/desioffers" target="_blank" rel="noopener" class="btn-channel whatsapp">
+              <span>💬 WhatsApp Channel</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 </BaseLayout>
 
 <style>
   .category-page-container {
     padding-top: 1rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
   }
-  .category-header {
+
+  /* Department Header Card */
+  .category-header-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-primary-light) 100%);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem 2.5rem;
     margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-subtle);
+  }
+  .header-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .category-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .guide-count-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-slate-600);
   }
   .category-h1 {
-    font-size: 2.2rem;
-    margin-bottom: 0.5rem;
+    font-size: clamp(2rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    color: var(--color-slate-900);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.6rem;
+    line-height: 1.15;
   }
   .category-desc {
     font-size: 1.05rem;
     color: var(--color-slate-600);
-    max-width: 800px;
+    line-height: 1.6;
+    max-width: 780px;
+    margin: 0;
   }
 
+  /* Subcategories Filter Navigation */
   .subcategories-filter-bar {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.85rem;
     background-color: var(--color-white);
     border: 1px solid var(--color-slate-200);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     padding: 0.85rem 1.25rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-subtle);
   }
   .sub-label {
     font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--color-slate-700);
+    font-size: 0.82rem;
+    color: var(--color-slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
     white-space: nowrap;
   }
   .sub-pills {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.5rem;
   }
   .sub-pill {
     background-color: var(--color-slate-100);
-    color: var(--color-slate-800);
+    color: var(--color-slate-700);
     font-size: 0.85rem;
     font-weight: 600;
-    padding: 0.3rem 0.75rem;
+    padding: 0.35rem 0.85rem;
     border-radius: var(--radius-full);
     text-decoration: none;
     transition: all 0.15s ease;
+    border: 1px solid transparent;
   }
   .sub-pill:hover {
     background-color: var(--color-primary-light);
     color: var(--color-primary);
+    border-color: var(--color-primary-border);
+  }
+  .sub-pill.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 700;
+  }
+
+  /* 2-Column Discovery Layout */
+  .category-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2.25rem;
+    align-items: start;
   }
 
   .category-articles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
   }
+
   .empty-category-box {
     background-color: var(--color-white);
     border: 1px solid var(--color-slate-200);
-    border-radius: var(--radius-md);
-    padding: 3rem;
+    border-radius: var(--radius-lg);
+    padding: 4rem 2rem;
     text-align: center;
-    color: var(--color-slate-500);
+    box-shadow: var(--shadow-subtle);
+  }
+  .empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .empty-category-box h3 {
+    font-size: 1.35rem;
+    color: var(--color-slate-800);
+    margin-bottom: 0.5rem;
+  }
+  .empty-category-box p {
+    color: var(--color-slate-600);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Sidebar */
+  .category-sidebar-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .sidebar-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-subtle);
+  }
+  .sidebar-card.highlight-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-primary-light) 100%);
+    border-color: var(--color-primary-border);
+  }
+  .sidebar-heading {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-bottom: 0.65rem;
+    letter-spacing: -0.01em;
+  }
+  .sidebar-text {
+    font-size: 0.88rem;
+    color: var(--color-slate-600);
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+  .trust-badge-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .trust-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-emerald-700);
+    background-color: var(--color-emerald-50);
+    border: 1px solid var(--color-emerald-200);
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-md);
+    width: fit-content;
+  }
+  .channel-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .btn-channel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .btn-channel.telegram {
+    background-color: #0088cc;
+    color: #ffffff;
+  }
+  .btn-channel.telegram:hover {
+    background-color: #0077b5;
+  }
+  .btn-channel.whatsapp {
+    background-color: #25d366;
+    color: #ffffff;
+  }
+  .btn-channel.whatsapp:hover {
+    background-color: #20ba59;
+  }
+
+  /* Responsive Breakpoints */
+  @media (max-width: 1024px) {
+    .category-layout-grid {
+      grid-template-columns: 1fr;
+    }
+    .category-sidebar-column {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .category-header-card {
+      padding: 1.5rem;
+    }
+    .category-articles-grid {
+      grid-template-columns: 1fr;
+    }
+    .category-sidebar-column {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

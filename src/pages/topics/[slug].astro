@@ -6,17 +6,21 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
   const topicHubs: CollectionEntry<'topicHubs'>[] = await getCollection('topicHubs');
-  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }) => !data.draft);
+  const articles: CollectionEntry<'articles'>[] = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
   const categories: CollectionEntry<'categories'>[] = await getCollection('categories');
   const authors: CollectionEntry<'authors'>[] = await getCollection('authors');
 
-  const categoryMap = new Map(categories.map((c) => [c.id, c.data]));
-  const authorMap = new Map(authors.map((a) => [a.id, a.data]));
+  const categoryMap = new Map<string, CollectionEntry<'categories'>['data']>(
+    categories.map((c: CollectionEntry<'categories'>) => [c.id, c.data])
+  );
+  const authorMap = new Map<string, CollectionEntry<'authors'>['data']>(
+    authors.map((a: CollectionEntry<'authors'>) => [a.id, a.data])
+  );
 
-  return topicHubs.map((hub) => {
+  return topicHubs.map((hub: CollectionEntry<'topicHubs'>) => {
     const hubArticles = articles
-      .filter((a) => a.data.category.id === hub.data.featuredCategory.id)
-      .sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+      .filter((a: CollectionEntry<'articles'>) => a.data.category.id === hub.data.featuredCategory.id)
+      .sort((a: CollectionEntry<'articles'>, b: CollectionEntry<'articles'>) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
 
     return {
       params: { slug: hub.data.slug },
@@ -54,91 +58,358 @@ const breadcrumbs = [
   <div class="container topic-hub-container">
     <Breadcrumbs items={breadcrumbs} />
 
-    <header class="topic-hub-header">
-      <span class="hub-label">EDITORIAL TOPIC HUB</span>
-      <h1 class="hub-h1">{hub.title}</h1>
-      <p class="hub-desc">{hub.description}</p>
+    <!-- Topic Header Card -->
+    <header class="topic-header-card">
+      <div class="header-badge-row">
+        <span class="topic-eyebrow">EDITORIAL TOPIC HUB</span>
+        <span class="guide-count-badge">{hubArticles.length} Curated {hubArticles.length === 1 ? 'Guide' : 'Guides'}</span>
+      </div>
+      <h1 class="topic-h1">{hub.title}</h1>
+      <p class="topic-desc">{hub.description}</p>
     </header>
 
-    <div class="topic-articles-grid">
-      {hubArticles.map((article) => {
-        const cat = categoryMap.get(article.data.category.id);
-        const auth = authorMap.get(article.data.author.id);
-        return (
-          <ArticleCard
-            title={article.data.title}
-            slug={article.slug}
-            description={article.data.description}
-            categoryName={cat?.name || 'General'}
-            categorySlug={cat?.slug || 'gaming'}
-            heroImage={article.data.heroImage}
-            heroImageAlt={article.data.heroImageAlt}
-            publishedDate={article.data.publishedDate}
-            readingTime={article.data.readingTime}
-            authorName={auth?.name}
-          />
-        );
-      })}
-    </div>
+    <!-- 2-Column Layout -->
+    <div class="topic-layout-grid">
+      <main class="topic-feed-column">
+        {hubArticles.length > 0 ? (
+          <div class="topic-articles-grid">
+            {hubArticles.map((article, idx) => {
+              const cat = categoryMap.get(article.data.category.id);
+              const auth = authorMap.get(article.data.author.id);
+              return (
+                <ArticleCard
+                  title={article.data.title}
+                  slug={article.slug}
+                  description={article.data.description}
+                  categoryName={cat?.name || 'General'}
+                  categorySlug={cat?.slug || 'gaming'}
+                  heroImage={article.data.heroImage}
+                  heroImageAlt={article.data.heroImageAlt}
+                  publishedDate={article.data.publishedDate}
+                  readingTime={article.data.readingTime}
+                  authorName={auth?.name}
+                  featured={idx === 0}
+                  layout={idx === 0 ? 'horizontal' : 'vertical'}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div class="empty-topic-box">
+            <span class="empty-icon">📌</span>
+            <h3>No Guides in This Topic Hub Yet</h3>
+            <p>We are continuously researching and writing curated guides. Browse all departments below.</p>
+            <a href="/" class="btn btn-primary" style="margin-top: 1rem;">Explore All Guides</a>
+          </div>
+        )}
 
-    {hub.faq && hub.faq.length > 0 && (
-      <section class="hub-faq-section">
-        <h2 class="faq-heading">Frequently Asked Questions on {hub.title}</h2>
-        <div class="faq-grid">
-          {hub.faq.map((item) => (
-            <div class="faq-card">
-              <h3 class="faq-q">{item.question}</h3>
-              <p class="faq-a">{item.answer}</p>
+        <!-- FAQ Section -->
+        {hub.faq && hub.faq.length > 0 && (
+          <section class="hub-faq-section">
+            <h2 class="faq-heading">Frequently Asked Questions</h2>
+            <div class="faq-accordion-list">
+              {hub.faq.map((item: { question: string; answer: string }) => (
+                <details class="faq-item">
+                  <summary class="faq-summary">
+                    <span class="faq-q-text">{item.question}</span>
+                    <span class="faq-chevron">›</span>
+                  </summary>
+                  <div class="faq-body">
+                    <p class="faq-a-text">{item.answer}</p>
+                  </div>
+                </details>
+              ))}
             </div>
-          ))}
+          </section>
+        )}
+      </main>
+
+      <aside class="topic-sidebar-column">
+        <div class="sidebar-card">
+          <h3 class="sidebar-heading">About This Topic</h3>
+          <p class="sidebar-text">
+            Topic hubs gather comprehensive buying advice, product comparisons, and curated shortlists across related categories for Indian shoppers.
+          </p>
+          <div class="trust-badge-row">
+            <span class="trust-badge">✓ Unbiased Editorial</span>
+            <span class="trust-badge">✓ Real INR Value</span>
+          </div>
         </div>
-      </section>
-    )}
+
+        <div class="sidebar-card highlight-card">
+          <h3 class="sidebar-heading">Join SmartFinds Community</h3>
+          <p class="sidebar-text">
+            Get instant alerts on price drops, lightning deals, and new buying guides directly in your feed.
+          </p>
+          <div class="channel-buttons">
+            <a href="https://t.me/desioffers" target="_blank" rel="noopener" class="btn-channel telegram">
+              <span>✈️ Telegram Alerts</span>
+            </a>
+            <a href="https://whatsapp.com/channel/desioffers" target="_blank" rel="noopener" class="btn-channel whatsapp">
+              <span>💬 WhatsApp Channel</span>
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 </BaseLayout>
 
 <style>
   .topic-hub-container {
     padding-top: 1rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
   }
-  .topic-hub-header {
+
+  /* Header Card */
+  .topic-header-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-primary-light) 100%);
+    border: 1px solid var(--color-primary-border);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem 2.5rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-subtle);
   }
-  .hub-label {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--color-primary);
-    background-color: var(--color-primary-light);
-    padding: 0.25rem 0.65rem;
-    border-radius: var(--radius-full);
-    display: inline-block;
+  .header-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin-bottom: 0.75rem;
   }
-  .hub-h1 {
-    font-size: 2.3rem;
-    margin-bottom: 0.5rem;
+  .topic-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
-  .hub-desc {
-    font-size: 1.1rem;
+  .guide-count-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--color-slate-600);
-    max-width: 800px;
   }
+  .topic-h1 {
+    font-size: clamp(2rem, 3.5vw, 2.6rem);
+    font-weight: 800;
+    color: var(--color-slate-900);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.6rem;
+    line-height: 1.15;
+  }
+  .topic-desc {
+    font-size: 1.05rem;
+    color: var(--color-slate-600);
+    line-height: 1.6;
+    max-width: 780px;
+    margin: 0;
+  }
+
+  /* 2-Column Layout */
+  .topic-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2.25rem;
+    align-items: start;
+  }
+
   .topic-articles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
   }
-  .hub-faq-section {
+
+  .empty-topic-box {
     background-color: var(--color-white);
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-lg);
-    padding: 2rem;
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-subtle);
+    margin-bottom: 2.5rem;
   }
-  .faq-heading { font-size: 1.4rem; margin-bottom: 1.5rem; }
-  .faq-grid { display: grid; gap: 1rem; }
-  .faq-card { background-color: var(--color-slate-50); padding: 1.25rem; border-radius: var(--radius-md); }
-  .faq-q { font-size: 1rem; margin-top: 0; margin-bottom: 0.5rem; color: var(--color-slate-900); }
-  .faq-a { font-size: 0.9rem; color: var(--color-slate-700); margin-bottom: 0; }
+  .empty-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .empty-topic-box h3 {
+    font-size: 1.35rem;
+    color: var(--color-slate-800);
+    margin-bottom: 0.5rem;
+  }
+  .empty-topic-box p {
+    color: var(--color-slate-600);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* FAQ Accordion */
+  .hub-faq-section {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-xl);
+    padding: 2rem 2.25rem;
+    box-shadow: var(--shadow-subtle);
+  }
+  .faq-heading {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--color-slate-900);
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.015em;
+  }
+  .faq-accordion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .faq-item {
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    background-color: var(--color-slate-50);
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+  }
+  .faq-item[open] {
+    border-color: var(--color-primary-border);
+    background-color: var(--color-white);
+  }
+  .faq-summary {
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-slate-900);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    user-select: none;
+  }
+  .faq-summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-chevron {
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+  .faq-item[open] .faq-chevron {
+    transform: rotate(90deg);
+  }
+  .faq-body {
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--color-slate-100);
+  }
+  .faq-a-text {
+    font-size: 0.92rem;
+    color: var(--color-slate-700);
+    line-height: 1.6;
+    margin: 0.75rem 0 0 0;
+  }
+
+  /* Sidebar */
+  .topic-sidebar-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .sidebar-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-subtle);
+  }
+  .sidebar-card.highlight-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-primary-light) 100%);
+    border-color: var(--color-primary-border);
+  }
+  .sidebar-heading {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-slate-900);
+    margin-bottom: 0.65rem;
+  }
+  .sidebar-text {
+    font-size: 0.88rem;
+    color: var(--color-slate-600);
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+  .trust-badge-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .trust-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-emerald-700);
+    background-color: var(--color-emerald-50);
+    border: 1px solid var(--color-emerald-200);
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-md);
+    width: fit-content;
+  }
+  .channel-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .btn-channel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .btn-channel.telegram {
+    background-color: #0088cc;
+    color: #ffffff;
+  }
+  .btn-channel.telegram:hover {
+    background-color: #0077b5;
+  }
+  .btn-channel.whatsapp {
+    background-color: #25d366;
+    color: #ffffff;
+  }
+  .btn-channel.whatsapp:hover {
+    background-color: #20ba59;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .topic-layout-grid {
+      grid-template-columns: 1fr;
+    }
+    .topic-sidebar-column {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .topic-header-card {
+      padding: 1.5rem;
+    }
+    .topic-articles-grid {
+      grid-template-columns: 1fr;
+    }
+    .topic-sidebar-column {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
