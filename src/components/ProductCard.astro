@@ -535,9 +535,27 @@ if (priceObservedAt) {
     }
     .product-cta-btn {
       justify-content: center;
+      min-height: 44px;
     }
     .affiliate-direct-note {
       text-align: center;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .product-card {
+      padding: 1.25rem 1rem;
+      margin-bottom: 2rem;
+    }
+    .product-heading {
+      font-size: 1.2rem;
+    }
+    .best-for-tag {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+    }
+    .price-figure {
+      font-size: 1.3rem;
     }
   }
 </style>

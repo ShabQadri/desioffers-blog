@@ -1,0 +1,93 @@
+{
+  "asin": "B0BJF85YRR",
+  "identity": {
+    "asin": "B0BJF85YRR",
+    "brand": "Portronics",
+    "productName": "Portronics Harmonics Z5 Wireless Bluetooth Neckband",
+    "model": "Harmonics Z5",
+    "variant": "Standard",
+    "amazonUrl": "https://www.amazon.in/dp/B0BJF85YRR",
+    "canonicalAmazonUrl": "https://www.amazon.in/dp/B0BJF85YRR"
+  },
+  "specifications": {
+    "driverSize": {
+      "field": "driverSize",
+      "value": "10mm",
+      "unit": "mm",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "amazon",
+        "authority": "amazon-listing",
+        "title": "Amazon India Product Listing",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "10mm dynamic acoustic driver"
+      }
+    },
+    "batteryLife": {
+      "field": "batteryLife",
+      "value": "33 hours",
+      "unit": "hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "amazon",
+        "authority": "amazon-listing",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Up to 33 hours playtime on single charge"
+      }
+    },
+    "ipRating": {
+      "field": "ipRating",
+      "value": "IPX4",
+      "confidence": "medium",
+      "status": "verified",
+      "source": {
+        "sourceType": "amazon",
+        "authority": "amazon-listing",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "IPX4 splash resistant"
+      }
+    }
+  },
+  "commercial": {
+    "price": "₹799",
+    "priceVerification": "user-observed",
+    "priceObservedAt": "2026-08-27T17:25:00.000Z",
+    "availability": "Available on Amazon India",
+    "availabilityVerification": "unknown"
+  },
+  "sources": [
+    {
+      "sourceType": "amazon",
+      "authority": "amazon-listing",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    }
+  ],
+  "verification": {
+    "identityStatus": "verified",
+    "factStatus": "facts_ready",
+    "conflicts": [],
+    "warnings": [],
+    "missingFields": [
+      "bluetoothVersion",
+      "chargingSpeed",
+      "weight",
+      "dimensions",
+      "latency",
+      "anc",
+      "enc",
+      "codecs",
+      "compatibility"
+    ],
+    "verifiedFields": [
+      "driverSize",
+      "batteryLife",
+      "ipRating"
+    ],
+    "unverifiedFields": []
+  },
+  "status": "READY_FOR_EDITORIAL_WRITING",
+  "createdAt": "2026-08-27T18:00:00.000Z",
+  "lastVerifiedAt": "2026-08-27T18:00:00.000Z"
+}

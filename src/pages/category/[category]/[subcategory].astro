@@ -323,14 +323,31 @@ const breadcrumbs = buildBreadcrumbs({
   }
 
   @media (max-width: 640px) {
+    .subcategory-page-container {
+      padding-top: 0.75rem;
+      padding-bottom: 3rem;
+    }
     .subcategory-header-card {
-      padding: 1.5rem;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .subcategory-h1 {
+      font-size: clamp(1.6rem, 5vw, 2.1rem);
+    }
+    .subcategory-desc {
+      font-size: 0.95rem;
+    }
+    .subcategory-layout-grid {
+      gap: 2rem;
     }
     .subcategory-articles-grid {
       grid-template-columns: 1fr;
     }
     .subcategory-sidebar-column {
       grid-template-columns: 1fr;
+    }
+    .sidebar-card {
+      padding: 1.25rem 1rem;
     }
   }
 </style>

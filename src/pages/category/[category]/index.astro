@@ -378,14 +378,38 @@ const breadcrumbs = buildBreadcrumbs({
   }
 
   @media (max-width: 640px) {
+    .category-page-container {
+      padding-top: 0.75rem;
+      padding-bottom: 3rem;
+    }
     .category-header-card {
-      padding: 1.5rem;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .category-h1 {
+      font-size: clamp(1.6rem, 5vw, 2.1rem);
+    }
+    .category-desc {
+      font-size: 0.95rem;
+    }
+    .subcategories-filter-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .category-layout-grid {
+      gap: 2rem;
     }
     .category-articles-grid {
       grid-template-columns: 1fr;
     }
     .category-sidebar-column {
       grid-template-columns: 1fr;
+    }
+    .sidebar-card {
+      padding: 1.25rem 1rem;
     }
   }
 </style>

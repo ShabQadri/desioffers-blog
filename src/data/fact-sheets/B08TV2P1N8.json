@@ -1,0 +1,107 @@
+{
+  "asin": "B08TV2P1N8",
+  "identity": {
+    "asin": "B08TV2P1N8",
+    "brand": "boAt",
+    "productName": "boAt Rockerz 255 Pro+ Bluetooth In-Ear Neckband Earphones",
+    "model": "Rockerz 255 Pro+",
+    "variant": "Standard",
+    "amazonUrl": "https://www.amazon.in/dp/B08TV2P1N8",
+    "canonicalAmazonUrl": "https://www.amazon.in/dp/B08TV2P1N8"
+  },
+  "specifications": {
+    "driverSize": {
+      "field": "driverSize",
+      "value": "10mm",
+      "unit": "mm",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "boAt Lifestyle Official Tech Specs",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "10mm dynamic drivers with boAt Signature Sound"
+      }
+    },
+    "batteryLife": {
+      "field": "batteryLife",
+      "value": "40 hours",
+      "unit": "hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "boAt Lifestyle Official Tech Specs",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Up to 40 hours playback at 60% volume (300mAh battery)"
+      }
+    },
+    "ipRating": {
+      "field": "ipRating",
+      "value": "IPX7",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "IPX7 sweat and water resistance rating"
+      }
+    },
+    "chargingSpeed": {
+      "field": "chargingSpeed",
+      "value": "10 min = 10 hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "ASAP Charge technology: 10 mins charge = 10 hrs playback"
+      }
+    }
+  },
+  "commercial": {
+    "price": "₹1,299",
+    "priceVerification": "user-observed",
+    "priceObservedAt": "2026-08-27T17:25:00.000Z",
+    "availability": "Available on Amazon India",
+    "availabilityVerification": "unknown"
+  },
+  "sources": [
+    {
+      "sourceType": "manufacturer",
+      "authority": "manufacturer-official",
+      "title": "boAt Lifestyle Website",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    }
+  ],
+  "verification": {
+    "identityStatus": "verified",
+    "factStatus": "facts_ready",
+    "conflicts": [],
+    "warnings": [],
+    "missingFields": [
+      "bluetoothVersion",
+      "weight",
+      "dimensions",
+      "latency",
+      "anc",
+      "enc",
+      "codecs",
+      "compatibility"
+    ],
+    "verifiedFields": [
+      "driverSize",
+      "batteryLife",
+      "ipRating",
+      "chargingSpeed"
+    ],
+    "unverifiedFields": []
+  },
+  "status": "READY_FOR_EDITORIAL_WRITING",
+  "createdAt": "2026-08-27T18:00:00.000Z",
+  "lastVerifiedAt": "2026-08-27T18:00:00.000Z"
+}

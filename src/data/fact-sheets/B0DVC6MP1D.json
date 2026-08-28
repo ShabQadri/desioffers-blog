@@ -1,0 +1,118 @@
+{
+  "asin": "B0DVC6MP1D",
+  "identity": {
+    "asin": "B0DVC6MP1D",
+    "brand": "realme",
+    "productName": "realme Buds Wireless 3 Neo Bluetooth Neckband Earphones",
+    "model": "Buds Wireless 3 Neo",
+    "variant": "Standard",
+    "amazonUrl": "https://www.amazon.in/dp/B0DVC6MP1D",
+    "canonicalAmazonUrl": "https://www.amazon.in/dp/B0DVC6MP1D"
+  },
+  "specifications": {
+    "driverSize": {
+      "field": "driverSize",
+      "value": "13.4mm",
+      "unit": "mm",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "realme India Official Product Specs",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "13.4mm Dynamic Bass Boost Driver"
+      }
+    },
+    "batteryLife": {
+      "field": "batteryLife",
+      "value": "32 hours",
+      "unit": "hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Up to 32 hours total playback with AAC codec"
+      }
+    },
+    "ipRating": {
+      "field": "ipRating",
+      "value": "IPX5",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "IPX5 water resistance rating"
+      }
+    },
+    "latency": {
+      "field": "latency",
+      "value": "45ms",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "45ms Ultra-low latency Game Mode via realme Link app"
+      }
+    },
+    "chargingSpeed": {
+      "field": "chargingSpeed",
+      "value": "10 min = 7 hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Dart Fast charge rating: 10 minutes gives 7 hours playback"
+      }
+    }
+  },
+  "commercial": {
+    "price": "₹1,299",
+    "priceVerification": "user-observed",
+    "priceObservedAt": "2026-08-27T17:25:00.000Z",
+    "availability": "Available on Amazon India",
+    "availabilityVerification": "unknown"
+  },
+  "sources": [
+    {
+      "sourceType": "manufacturer",
+      "authority": "manufacturer-official",
+      "title": "realme Official Website",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    }
+  ],
+  "verification": {
+    "identityStatus": "verified",
+    "factStatus": "facts_ready",
+    "conflicts": [],
+    "warnings": [],
+    "missingFields": [
+      "bluetoothVersion",
+      "chargingSpeed",
+      "weight",
+      "dimensions",
+      "anc",
+      "enc",
+      "codecs",
+      "compatibility"
+    ],
+    "verifiedFields": [
+      "driverSize",
+      "batteryLife",
+      "ipRating",
+      "latency"
+    ],
+    "unverifiedFields": []
+  },
+  "status": "READY_FOR_EDITORIAL_WRITING",
+  "createdAt": "2026-08-27T18:00:00.000Z",
+  "lastVerifiedAt": "2026-08-27T18:00:00.000Z"
+}

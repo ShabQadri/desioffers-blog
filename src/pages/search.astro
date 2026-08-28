@@ -340,8 +340,41 @@ const breadcrumbs = [
   }
 
   @media (max-width: 640px) {
+    .search-page-container {
+      padding-top: 0.75rem;
+      padding-bottom: 3rem;
+    }
     .search-header-card {
-      padding: 1.5rem;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .search-h1 {
+      font-size: clamp(1.6rem, 5vw, 2.1rem);
+    }
+    .search-desc {
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+    .search-input-field {
+      font-size: 0.95rem;
+      padding: 0.85rem 1rem 0.85rem 2.85rem;
+      min-height: 44px;
+    }
+    .search-icon {
+      left: 0.9rem;
+    }
+    .search-suggestions-box {
+      padding: 1.5rem 1.25rem;
+    }
+    .suggest-pill {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.82rem;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+    }
+    .smart-search-card {
+      padding: 1.25rem 1rem;
     }
   }
 </style>

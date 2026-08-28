@@ -19,7 +19,12 @@ import path from 'path';
 import { parseMdxArticle, parseFrontmatterYaml } from '../publish/validator.js';
 import { resolveTaxonomy } from '../authoring/taxonomy-resolver.js';
 import { checkContentQuality } from '../authoring/quality-guard.js';
-import { validateProductSafety, isValidAsin } from '../products/index.js';
+import {
+  validateProductSafety,
+  isValidAsin,
+  loadFactSheetByAsin,
+  verifyArticleProductAgainstFactSheet,
+} from '../products/index.js';
 import {
   verifyMediaExistenceSync,
   verifyMediaExistenceAsync,
@@ -32,6 +37,8 @@ export interface QualityPipelineOptions extends MediaVerificationOptions {
   contentDir?: string;
   allowImagelessProducts?: boolean;
   mediaVerification?: MediaVerificationResult;
+  requireFactSheet?: boolean;
+  projectRoot?: string;
 }
 
 export function evaluateArticleQuality(
@@ -470,6 +477,44 @@ export function evaluateArticleQuality(
         });
       } else {
         verifiedAffiliateCount++;
+
+        // Phase 11I: Fact Sheet & Claim Verification
+        const projectRoot = options.projectRoot || (options.contentDir ? path.dirname(path.dirname(options.contentDir)) : process.cwd());
+        const factSheet = loadFactSheetByAsin(prod.asin, projectRoot);
+        const isTestFixture = articleSlug.startsWith('test-') || articleSlug.includes('mock');
+        const requireFact = options.requireFactSheet ?? (!isTestFixture && data.draft === true && data.productDataVerified === false);
+
+        const factResult = verifyArticleProductAgainstFactSheet(
+          {
+            name: prod.name,
+            brand: prod.brand,
+            model: prod.model,
+            asin: prod.asin,
+            editorialBadge: prod.editorialBadge,
+            shortDescription: prod.shortDescription,
+            bestFor: prod.bestFor,
+            pros: prod.pros,
+            cons: prod.cons,
+            specifications: prod.specifications,
+            priceDisplay: prod.priceDisplay,
+            priceObservedAt: prod.priceObservedAt,
+            priceVerification: prod.priceVerification,
+            availabilityNote: prod.availabilityNote,
+            affiliateUrl: prod.affiliateUrl,
+          },
+          factSheet,
+          { requireFactSheet: requireFact }
+        );
+
+        for (const issue of factResult.issues) {
+          addCheck({
+            id: `product-${pos}-fact-${issue.field}-${issue.code.toLowerCase().replace(/_/g, '-')}`,
+            name: `Product #${pos} Fact (${issue.field})`,
+            category: 'PRODUCT_FACT_VERIFICATION',
+            severity: issue.severity,
+            message: issue.message,
+          });
+        }
       }
     } else if (prod.affiliateUrl || prod.url) {
       verifiedAffiliateCount++;

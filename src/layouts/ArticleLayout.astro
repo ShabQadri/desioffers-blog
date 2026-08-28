@@ -462,6 +462,7 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
     line-height: 1.75;
     color: var(--color-slate-800);
     margin-bottom: 3rem;
+    overflow-wrap: break-word;
   }
   .editorial-prose :global(h2) {
     font-size: clamp(1.4rem, 2.5vw, 1.85rem);
@@ -496,6 +497,56 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
     margin: 1.5rem 0;
     color: var(--color-slate-800);
     font-style: italic;
+  }
+
+  /* Responsive Comparison Table Styling */
+  .editorial-prose :global(table) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+    margin: 1.75rem 0 2.5rem;
+    font-size: 0.88rem;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-subtle);
+  }
+  .editorial-prose :global(thead) {
+    background-color: var(--color-slate-100);
+  }
+  .editorial-prose :global(th) {
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-slate-900);
+    border-bottom: 2px solid var(--color-slate-200);
+    border-right: 1px solid var(--color-slate-200);
+    white-space: nowrap;
+    text-align: left;
+  }
+  .editorial-prose :global(th:last-child) {
+    border-right: none;
+  }
+  .editorial-prose :global(td) {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-slate-150);
+    border-right: 1px solid var(--color-slate-150);
+    color: var(--color-slate-700);
+    vertical-align: top;
+  }
+  .editorial-prose :global(td:last-child) {
+    border-right: none;
+  }
+  .editorial-prose :global(tr:last-child td) {
+    border-bottom: none;
+  }
+  .editorial-prose :global(tr:hover td) {
+    background-color: var(--color-primary-subtle);
   }
 
   /* Section Title Bars */
@@ -665,9 +716,50 @@ const articleUrl = `${SITE_CONFIG.url}/${slug}/`;
   }
 
   @media (max-width: 640px) {
+    .article-page-wrapper {
+      padding: 1rem 0 3rem;
+    }
+    .article-header {
+      margin-bottom: 1.75rem;
+    }
+    .article-h1 {
+      font-size: clamp(1.45rem, 6vw, 1.95rem);
+      line-height: 1.25;
+    }
+    .article-lead {
+      font-size: 0.98rem;
+      margin-bottom: 1.25rem;
+    }
+    .author-transparency-card {
+      padding: 0.75rem 1rem;
+    }
+    .editorial-disclosure-banner {
+      padding: 0.75rem 1rem;
+    }
+    .methodology-card {
+      padding: 1.25rem 1rem;
+      margin: 2rem 0;
+    }
+    .faq-section-block {
+      margin: 2.5rem 0;
+    }
+    .faq-accordion-item {
+      padding: 0.85rem 1rem;
+    }
+    .faq-summary-row {
+      font-size: 0.92rem;
+    }
     .author-bio-card {
       flex-direction: column;
       text-align: center;
+      padding: 1.25rem 1rem;
+    }
+    .related-articles-section {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+    }
+    .related-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

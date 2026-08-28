@@ -25,6 +25,7 @@ export interface QualityCheckItem {
     | 'STRUCTURE'
     | 'PRODUCTS'
     | 'PRODUCT_VERIFICATION'
+    | 'PRODUCT_FACT_VERIFICATION'
     | 'MEDIA'
     | 'AFFILIATE'
     | 'ANTI_FABRICATION';

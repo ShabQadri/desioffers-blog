@@ -440,14 +440,38 @@ const breadcrumbs = [
   }
 
   @media (max-width: 640px) {
+    .deals-page-container {
+      padding-top: 0.75rem;
+      padding-bottom: 3rem;
+    }
     .deals-header-card {
-      padding: 1.5rem;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .deals-h1 {
+      font-size: clamp(1.6rem, 5vw, 2.1rem);
+    }
+    .deals-desc {
+      font-size: 0.95rem;
+    }
+    .deals-layout-grid {
+      gap: 2rem;
     }
     .deals-cards-grid {
       grid-template-columns: 1fr;
     }
+    .smart-deal-card {
+      padding: 1.25rem 1rem;
+    }
+    .btn-grab-deal {
+      min-height: 44px;
+      justify-content: center;
+    }
     .deals-sidebar-column {
       grid-template-columns: 1fr;
+    }
+    .sidebar-card {
+      padding: 1.25rem 1rem;
     }
   }
 </style>

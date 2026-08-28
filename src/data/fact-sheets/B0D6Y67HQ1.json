@@ -1,0 +1,167 @@
+{
+  "asin": "B0D6Y67HQ1",
+  "identity": {
+    "asin": "B0D6Y67HQ1",
+    "brand": "boAt",
+    "productName": "boAt Rockerz 255 Touch Bluetooth Wireless Neckband",
+    "model": "Rockerz 255 Touch",
+    "variant": "Standard",
+    "amazonUrl": "https://www.amazon.in/dp/B0D6Y67HQ1",
+    "canonicalAmazonUrl": "https://www.amazon.in/dp/B0D6Y67HQ1"
+  },
+  "categoryInfo": {
+    "category": "electronics-audio",
+    "subcategory": "headphones",
+    "productType": "neckband"
+  },
+  "specifications": {
+    "driverSize": {
+      "field": "driverSize",
+      "value": "10mm",
+      "unit": "mm",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "boAt Lifestyle Official Tech Specs",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "10mm dynamic drivers with boAt Signature Sound"
+      }
+    },
+    "batteryLife": {
+      "field": "batteryLife",
+      "value": "30 hours",
+      "unit": "hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "boAt Lifestyle Official Tech Specs",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Up to 30 hours total playback time"
+      }
+    },
+    "chargingSpeed": {
+      "field": "chargingSpeed",
+      "value": "10 min = 10 hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "ASAP Charge technology (10 mins = 10 hrs)"
+      }
+    },
+    "touchControls": {
+      "field": "touchControls",
+      "value": "Full touch & swipe collar controls",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Full touch & swipe control interface built into neckband collar"
+      }
+    },
+    "bluetoothVersion": {
+      "field": "bluetoothVersion",
+      "value": "5.3",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "amazon",
+        "authority": "amazon-listing",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Bluetooth v5.3 connectivity"
+      }
+    },
+    "ipRating": {
+      "field": "ipRating",
+      "value": "IPX5",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "IPX5 sweat and water resistance"
+      }
+    },
+    "enc": {
+      "field": "enc",
+      "value": "ENx Technology",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "ENx Environmental Noise Cancellation for clear voice calls"
+      }
+    },
+    "latency": {
+      "field": "latency",
+      "value": "60ms",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "BEAST Mode low latency (~60ms)"
+      }
+    }
+  },
+  "commercial": {
+    "price": "₹1,499",
+    "priceVerification": "user-observed",
+    "priceObservedAt": "2026-08-27T17:25:00.000Z",
+    "availability": "Available on Amazon India",
+    "availabilityVerification": "unknown"
+  },
+  "sources": [
+    {
+      "sourceType": "manufacturer",
+      "authority": "manufacturer-official",
+      "title": "boAt Lifestyle Official Website",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    },
+    {
+      "sourceType": "amazon",
+      "authority": "amazon-listing",
+      "url": "https://www.amazon.in/dp/B0D6Y67HQ1",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    }
+  ],
+  "verification": {
+    "identityStatus": "verified",
+    "factStatus": "facts_ready",
+    "conflicts": [],
+    "warnings": [],
+    "missingFields": [
+      "weight",
+      "dimensions",
+      "anc",
+      "codecs",
+      "compatibility"
+    ],
+    "verifiedFields": [
+      "driverSize",
+      "batteryLife",
+      "chargingSpeed",
+      "touchControls",
+      "bluetoothVersion",
+      "ipRating",
+      "enc",
+      "latency"
+    ],
+    "unverifiedFields": []
+  },
+  "status": "READY_FOR_EDITORIAL_WRITING",
+  "createdAt": "2026-08-27T18:00:00.000Z",
+  "lastVerifiedAt": "2026-08-27T18:00:00.000Z"
+}

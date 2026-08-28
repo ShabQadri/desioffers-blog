@@ -114,6 +114,7 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-width: 0;
   }
 
   .card-meta-top {
@@ -121,6 +122,8 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     align-items: center;
     justify-content: space-between;
     margin-bottom: 0.65rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .category-pill {
     font-size: 0.72rem;
@@ -143,6 +146,7 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
   .reading-time {
     font-size: 0.76rem;
     color: var(--color-slate-500);
+    white-space: nowrap;
   }
 
   .card-title {
@@ -150,6 +154,8 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     line-height: 1.35;
     margin-bottom: 0.5rem;
     letter-spacing: -0.015em;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
   .card-title a {
     color: var(--color-slate-900);
@@ -170,6 +176,7 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-word;
   }
 
   .card-footer {
@@ -180,11 +187,15 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     color: var(--color-slate-500);
     padding-top: 0.75rem;
     border-top: 1px solid var(--color-slate-150);
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .footer-left {
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    flex-wrap: wrap;
+    min-width: 0;
   }
   .author-name {
     font-weight: 600;
@@ -202,6 +213,8 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
     color: var(--color-primary);
     text-decoration: none;
     transition: gap 0.15s ease;
+    flex-shrink: 0;
+    padding: 0.2rem 0;
   }
   .read-more-link:hover {
     gap: 0.4rem;
@@ -230,10 +243,29 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
       grid-template-columns: 1fr;
     }
     .article-card.horizontal .card-img {
-      height: 190px;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      min-height: 0;
     }
     .article-card.featured {
       grid-column: span 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .card-body {
+      padding: 1rem 1rem;
+    }
+    .card-img {
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+    .card-title {
+      font-size: 1.05rem;
+    }
+    .card-excerpt {
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
     }
   }
 </style>

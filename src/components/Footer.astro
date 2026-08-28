@@ -220,16 +220,36 @@ import { SITE_CONFIG } from '../config/site';
   @media (max-width: 900px) {
     .footer-grid {
       grid-template-columns: 1fr 1fr;
+      padding-top: 2.5rem;
+      padding-bottom: 2.5rem;
+      gap: 2rem;
     }
   }
   @media (max-width: 600px) {
     .footer-grid {
       grid-template-columns: 1fr;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+      gap: 1.75rem;
+    }
+    .footer-links a {
+      padding: 0.2rem 0;
+      display: inline-block;
+    }
+    .footer-socials a {
+      padding: 0.4rem 0.85rem;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
     }
     .footer-bottom-content {
       flex-direction: column;
       gap: 0.75rem;
       text-align: center;
+    }
+    .footer-bottom-links {
+      flex-wrap: wrap;
+      justify-content: center;
     }
   }
 </style>

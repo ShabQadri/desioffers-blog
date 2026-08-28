@@ -1,0 +1,125 @@
+{
+  "asin": "B0FBRGKXHG",
+  "identity": {
+    "asin": "B0FBRGKXHG",
+    "brand": "OnePlus",
+    "productName": "OnePlus Bullets Wireless Z3 Bluetooth Neckband",
+    "model": "Bullets Wireless Z3",
+    "variant": "Standard",
+    "amazonUrl": "https://www.amazon.in/dp/B0FBRGKXHG",
+    "canonicalAmazonUrl": "https://www.amazon.in/dp/B0FBRGKXHG"
+  },
+  "specifications": {
+    "driverSize": {
+      "field": "driverSize",
+      "value": "12.4mm",
+      "unit": "mm",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "OnePlus Bullets Wireless Z3 Technical Specifications",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Official OnePlus product datasheet: 12.4mm bass boost dynamic driver"
+      }
+    },
+    "batteryLife": {
+      "field": "batteryLife",
+      "value": "30 hours",
+      "unit": "hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "title": "OnePlus Bullets Wireless Z3 Technical Specifications",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Official battery rating: 30 hours playback at 50% volume with AAC"
+      }
+    },
+    "chargingSpeed": {
+      "field": "chargingSpeed",
+      "value": "10 min = 20 hours",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Warp / Fast charge rating: 10 minutes gives 20 hours playback"
+      }
+    },
+    "ipRating": {
+      "field": "ipRating",
+      "value": "IP55",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "manufacturer",
+        "authority": "manufacturer-official",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "IP55 water and dust resistance certified"
+      }
+    },
+    "bluetoothVersion": {
+      "field": "bluetoothVersion",
+      "value": "5.3",
+      "confidence": "high",
+      "status": "verified",
+      "source": {
+        "sourceType": "amazon",
+        "authority": "amazon-listing",
+        "retrievedAt": "2026-08-27T18:00:00.000Z",
+        "evidence": "Amazon.in product listing specifications"
+      }
+    }
+  },
+  "commercial": {
+    "price": "₹1,999",
+    "priceVerification": "user-observed",
+    "priceObservedAt": "2026-08-27T17:25:00.000Z",
+    "availability": "Available on Amazon India",
+    "availabilityVerification": "unknown"
+  },
+  "sources": [
+    {
+      "sourceType": "manufacturer",
+      "authority": "manufacturer-official",
+      "title": "OnePlus Official Store",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    },
+    {
+      "sourceType": "amazon",
+      "authority": "amazon-listing",
+      "url": "https://www.amazon.in/dp/B0FBRGKXHG",
+      "retrievedAt": "2026-08-27T18:00:00.000Z"
+    }
+  ],
+  "verification": {
+    "identityStatus": "verified",
+    "factStatus": "facts_ready",
+    "conflicts": [],
+    "warnings": [],
+    "missingFields": [
+      "weight",
+      "dimensions",
+      "latency",
+      "anc",
+      "enc",
+      "codecs",
+      "compatibility"
+    ],
+    "verifiedFields": [
+      "driverSize",
+      "batteryLife",
+      "chargingSpeed",
+      "ipRating",
+      "bluetoothVersion"
+    ],
+    "unverifiedFields": []
+  },
+  "status": "READY_FOR_EDITORIAL_WRITING",
+  "createdAt": "2026-08-27T18:00:00.000Z",
+  "lastVerifiedAt": "2026-08-27T18:00:00.000Z"
+}

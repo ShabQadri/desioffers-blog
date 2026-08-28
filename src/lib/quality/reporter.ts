@@ -37,6 +37,7 @@ export function formatQualityReportConsole(report: ArticleQualityReport): string
     'STRUCTURE',
     'PRODUCTS',
     'PRODUCT_VERIFICATION',
+    'PRODUCT_FACT_VERIFICATION',
     'MEDIA',
     'AFFILIATE',
     'ANTI_FABRICATION',
