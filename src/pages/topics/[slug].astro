@@ -211,16 +211,25 @@ const breadcrumbs = [
   /* 2-Column Layout */
   .topic-layout-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: 2.25rem;
     align-items: start;
+    width: 100%;
+    min-width: 0;
+  }
+  .topic-main-column {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .topic-articles-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2.5rem;
+    min-width: 0;
+    width: 100%;
   }
 
   .empty-topic-box {
@@ -231,6 +240,8 @@ const breadcrumbs = [
     text-align: center;
     box-shadow: var(--shadow-subtle);
     margin-bottom: 2.5rem;
+    min-width: 0;
+    width: 100%;
   }
   .empty-icon {
     font-size: 2.5rem;
@@ -393,11 +404,13 @@ const breadcrumbs = [
   /* Responsive */
   @media (max-width: 1024px) {
     .topic-layout-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     .topic-sidebar-column {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      min-width: 0;
+      width: 100%;
     }
   }
 

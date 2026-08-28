@@ -224,14 +224,18 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
   /* Horizontal Layout Variant */
   .article-card.horizontal {
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 240px minmax(0, 1fr);
+    width: 100%;
+    min-width: 0;
   }
   .article-card.horizontal .card-image-link {
     height: 100%;
+    min-width: 0;
   }
   .article-card.horizontal .card-img {
     height: 100%;
     min-height: 190px;
+    width: 100%;
   }
 
   .article-card.featured {
@@ -240,12 +244,13 @@ const imgAttrs = getImageAttributes(featured ? 'medium' : 'card');
 
   @media (max-width: 768px) {
     .article-card.horizontal {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     .article-card.horizontal .card-img {
       height: auto;
       aspect-ratio: 16 / 9;
       min-height: 0;
+      width: 100%;
     }
     .article-card.featured {
       grid-column: span 1;

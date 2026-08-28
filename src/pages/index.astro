@@ -8,6 +8,8 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { SITE_CONFIG } from '../config/site';
 import { getImageUrl } from '../utils/image';
 import { formatDate } from '../utils/time';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Strictly fetch only published, non-draft articles
 const allArticles = await getCollection('articles', ({ data }: CollectionEntry<'articles'>) => !data.draft);
@@ -28,9 +30,27 @@ const authorMap = new Map<string, CollectionEntry<'authors'>['data']>(
   authors.map((a: CollectionEntry<'authors'>) => [a.id, a.data])
 );
 
-// Featured articles for slider (take up to 3 top guides)
-const featuredPool = sortedArticles.filter((a: CollectionEntry<'articles'>) => a.data.featured);
-const sliderArticles = (featuredPool.length >= 2 ? featuredPool : sortedArticles).slice(0, 3);
+// Helper to determine if an article has valid/verified hero media
+function hasValidHeroMedia(article: CollectionEntry<'articles'>): boolean {
+  const hero = article.data.heroImage;
+  if (!hero || hero.trim() === '') return false;
+  const trimmed = hero.trim();
+  // Valid R2 key or external URL
+  if (!trimmed.startsWith('/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) return true;
+  // Local static file check
+  const localFile = path.join(process.cwd(), 'public', trimmed.replace(/^\/+/, ''));
+  if (fs.existsSync(localFile)) return true;
+  // Slug-based local fallback check
+  const slugFile = path.join(process.cwd(), 'public', 'images', 'articles', `${article.slug}-hero.jpg`);
+  if (fs.existsSync(slugFile)) return true;
+  return false;
+}
+
+// Hero Slider: Prefer featured articles with valid media; fall back to latest published with valid media
+const validFeatured = sortedArticles.filter((a: CollectionEntry<'articles'>) => a.data.featured && hasValidHeroMedia(a));
+const validNonFeatured = sortedArticles.filter((a: CollectionEntry<'articles'>) => !a.data.featured && hasValidHeroMedia(a));
+const validPool = [...validFeatured, ...validNonFeatured];
+const sliderArticles = (validPool.length >= 1 ? validPool : sortedArticles).slice(0, 3);
 
 const sliderSlides: FeaturedSlideItem[] = sliderArticles.map((article: CollectionEntry<'articles'>) => {
   const cat = categoryMap.get(article.data.category.id);
@@ -281,18 +301,32 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
   /* Main Feed & Sidebar Layout */
   .main-content-section {
     padding: 1.5rem 0 3rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
   .feed-sidebar-layout {
     display: grid;
-    grid-template-columns: 1fr 360px;
+    grid-template-columns: minmax(0, 1fr) 360px;
     gap: 2.5rem;
     align-items: start;
+    width: 100%;
+    max-width: var(--container-max-width);
+    min-width: 0;
+  }
+  .feed-main-col {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .articles-feed-list {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   /* Sidebar Widgets */
@@ -300,6 +334,9 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
   .sidebar-card {
     background-color: var(--color-white);
@@ -307,6 +344,10 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-subtle);
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .widget-header {
@@ -314,6 +355,7 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.85rem;
+    min-width: 0;
   }
   .widget-icon-pill {
     font-size: 1.1rem;
@@ -330,6 +372,7 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     color: var(--color-slate-600);
     line-height: 1.55;
     margin-bottom: 1rem;
+    min-width: 0;
   }
   .widget-link {
     display: inline-flex;
@@ -351,6 +394,8 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
+    min-width: 0;
+    width: 100%;
   }
   .popular-item {
     display: flex;
@@ -360,6 +405,9 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     padding: 0.5rem;
     border-radius: var(--radius-md);
     transition: background-color 0.15s ease;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
   .popular-item:hover {
     background-color: var(--color-slate-100);
@@ -370,6 +418,7 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     color: var(--color-slate-300);
     width: 20px;
     text-align: center;
+    flex-shrink: 0;
   }
   .popular-thumb {
     width: 54px;
@@ -384,6 +433,8 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     flex-direction: column;
     gap: 0.15rem;
     min-width: 0;
+    flex: 1;
+    overflow: hidden;
   }
   .popular-cat {
     font-size: 0.68rem;
@@ -401,6 +452,8 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
+    max-width: 100%;
   }
   .popular-item:hover .popular-title {
     color: var(--color-primary);
@@ -415,6 +468,8 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
+    min-width: 0;
+    width: 100%;
   }
   .channel-btn {
     width: 100%;
@@ -425,6 +480,7 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
     font-size: 0.88rem;
     font-weight: 700;
     padding: 0.65rem 1rem;
+    box-sizing: border-box;
   }
   .telegram-btn {
     background-color: #229ed9;
@@ -446,10 +502,10 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
   /* Responsive Breakpoints */
   @media (max-width: 1100px) {
     .categories-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .feed-sidebar-layout {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 
@@ -458,7 +514,7 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
       padding: 0.5rem 0 1.75rem;
     }
     .categories-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.75rem;
     }
     .section-title-bar {
@@ -466,6 +522,7 @@ const popularArticleItems: PopularArticleItem[] = popularArticles.map((art: Coll
       align-items: flex-start;
       gap: 0.35rem;
       margin-bottom: 1rem;
+      min-width: 0;
     }
     .main-content-section {
       padding: 1rem 0 2.5rem;

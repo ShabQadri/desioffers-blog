@@ -246,6 +246,8 @@ const { slides } = Astro.props;
     overflow: hidden;
     box-shadow: var(--shadow-md);
     min-height: 400px;
+    width: 100%;
+    min-width: 0;
   }
 
   /* Left Editorial Panel */
@@ -431,8 +433,9 @@ const { slides } = Astro.props;
 
   @media (max-width: 900px) {
     .slide-card {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       min-height: auto;
+      width: 100%;
     }
     .slide-content-panel {
       padding: 1.75rem 1.5rem;
